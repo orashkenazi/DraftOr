@@ -465,6 +465,7 @@ function loadingOBJObject(path,name){
             newObject.position.x=-49;
             newObject.position.y=75;
             myObjects.push(newObject)
+            unselectableObjects.push(newObject);
             setObjectsInSelectList(myObjects)
             
            
