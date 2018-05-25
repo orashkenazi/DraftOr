@@ -13,16 +13,18 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 
-camera.position.set( 0, -400 , 600 );
+camera.position.set( -700, 1300 , 860 );
 camera.up = new THREE.Vector3(0,0,1);
-camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+//camera.lookAt( new THREE.Vector3( -650  , -500 , 300 ) );
 
 //add Orbit Controls
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
+controls.target = new THREE.Vector3( -650  , -500 , 300)
 controls.minPolarAngle=0.1*Math.PI/2;
 controls.maxPolarAngle=0.98*Math.PI/2;
 controls.autoRotateSpeed = 0.2  ;
 controls.autoRotate = true;
+
 
 
 var imgmat =  null; //used in addGround();
