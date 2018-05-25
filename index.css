@@ -1,3 +1,14 @@
+canvas {
+    display: block; /* fix necessary to remove space at bottom of canvas */
+   
+}
+
+body{
+    margin: 0px;
+    padding:0px;
+    overflow: hidden;
+  }
+  
 .sd-container {
     padding:25px;
     margin:10px;

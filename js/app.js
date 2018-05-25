@@ -415,8 +415,8 @@ function changeObjectData(){
 }
 
 function testFunc(x,y){
+    console.log(document.documentElement.clientHeight)
    
-   updateLabels();
 
 }
 
@@ -464,10 +464,8 @@ function loadingOBJObject(path,name){
              //move to mathias zero point! : 55.45933228, -20.875329,  =~ -49,75
             newObject.position.x=-49;
             newObject.position.y=75;
-            myObjects.push(newObject);
-            unselectableObjects.push(newObject);
+            myObjects.push(newObject)
             setObjectsInSelectList(myObjects)
-           
             
            
             
