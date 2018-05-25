@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+        </style>
+        
+        <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="./index.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Quicksand">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+	</head>
+	<body onload="onLoadBody()">
+		
+        <button class="sd-control-button" data-toggle="collapse" data-target="#Controllers" style="position:absolute; z-index:+120; right:0px; color:transparent; border:0; width:15px;height:15px;">
+            +
+        </button>
+
+<div id="Controllers" style="position: absolute; top:10px; right:0px;z-index:+1;" class="collapse">
+
+        
+        <div id="TestControl" class="or-card">
+                <button class="or-card-title" data-toggle="collapse" data-target="#content">
+                        Test Control
+                </button>
+
+                
+                <div id="content" class="collapse">
+                        <div class="or-card-content">
+                                        <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                x:
+                                                        </div>
+                                        
+                                                        <div class="field-container">
+                                                                <input id="testX" type="number" class="form-control">
+                                                        </div>
+                                                </div>
+                                            
+                                                <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                y:
+                                                        </div>
+                                                        
+                                                        <div class="field-container">
+                                                                <input id="testY" type="number" class="form-control">
+                                                        </div>
+                                                </div><BR>
+                                            <button onclick="testFunc(document.getElementById('testX').value,document.getElementById('testY').value)" class="btn">Test!</button>
+                        </div>
+                             
+                </div>
+               
+        </div>
+
+    <div id="CameraController" class="or-card">
+                <button class="or-card-title" data-toggle="collapse" data-target="#content1">
+                                Camera Control
+                        </button>
+                <div id="content1" class="collapse">
+                                <div class="or-card-content">
+
+                                                <label>Camera Position:</label>
+                                                <BR>
+                                                    <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                x:
+                                                        </div>
+                                    
+                                                        <div class="field-container">
+                                                                <input id="cameraX" type="number" class="form-control">
+                                                        </div>
+                                                    </div>
+                                    
+                                                      <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                y:
+                                                        </div>
+                                                        
+                                                        <div class="field-container">
+                                                                <input id="cameraY" type="number" class="form-control">
+                                                        </div>
+                                                    </div>
+                                    
+                                                    <div class="fields-container">
+                                                            <div class="fieldname-container">
+                                                                    z:
+                                                            </div>
+                                                            
+                                                            <div class="field-container">
+                                                                    <input id="cameraZ" type="number" class="form-control">
+                                                            </div>
+                                                    </div>
+                                         <BR>       <label>Camera lookat:</label>
+                                                <BR>
+                                                    <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                x:
+                                                        </div>
+                                    
+                                                        <div class="field-container">
+                                                                <input id="lookatX" type="number" class="form-control">
+                                                        </div>
+                                                    </div>
+                                    
+                                                      <div class="fields-container">
+                                                        <div class="fieldname-container">
+                                                                y:
+                                                        </div>
+                                                        
+                                                        <div class="field-container">
+                                                                <input id="lookatY" type="number" class="form-control">
+                                                        </div>
+                                                    </div>
+                                    
+                                                    <div class="fields-container">
+                                                            <div class="fieldname-container">
+                                                                    z:
+                                                            </div>
+                                                            
+                                                            <div class="field-container">
+                                                                    <input id="lookatZ" type="number" class="form-control">
+                                                            </div>
+                                                    </div>
+                                         <BR>
+                                                    <button class="btn btn-primary btn-block" onclick="changeCameraPosition()" >Set camera settings</button>
+                                </div>
+
+                </div>
+            
+            
+    </div>
+
+    <div id="ObjectController" class="or-card" style="display:block;">
+                    <button class="or-card-title" data-toggle="collapse" data-target="#content2">
+                               Object Control
+                        </button>
+                <div id="content2" class="collapse">
+
+                    <div class="or-card-content">
+                            <div class="form-group">
+                
+                            <label>Select object:</label>
+                            <select class="form-control" id="objectSelectList"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;">
+                            </select>
+                    </div>
+                    
+                            
+                    <div id="ObjectData">
+                            
+                        <div class="fields-container">
+                              
+                                
+                                        <div class="checkbox">
+                                                <label><input type="checkbox" value="" id="objectSelectable" >Selectable by click</label>
+                                            </div>
+                               
+                            </div>
+
+                        <label>Color:</label>
+                        <BR>
+                        <div class="fields-container">
+                            <div class="fieldname-container">
+                                red
+                            </div>
+                            <div class="field-container">
+                                    <input id="objectR" type="number" class="form-control">
+                            </div>
+                        </div>
+                            
+                        <div class="fields-container">
+                                <div class="fieldname-container">
+                                    green :
+                                </div>
+                                <div class="field-container">
+                                        <input id="objectG" type="number" class="form-control">
+                                </div>
+                        </div>
+            
+                        <div class="fields-container">
+                                <div class="fieldname-container">
+                                        blue: 
+                                </div>
+                                <div class="field-container">
+                                        <input id="objectB" type="number" class="form-control">
+                                </div>
+                        </div>
+            
+                        <label>Position:</label>
+                        <BR>
+                        <div class="fields-container">
+                            <div class="fieldname-container">
+                                x:
+                            </div>
+                            <div class="field-container">
+                                    <input id="objectX" type="number" class="form-control">
+                            </div>
+                        </div>
+                            
+                        <div class="fields-container">
+                                <div class="fieldname-container">
+                                    y:
+                                </div>
+                                <div class="field-container">
+                                        <input id="objectY" type="number" class="form-control">
+                                </div>
+                        </div>
+            
+                        <div class="fields-container">
+                                <div class="fieldname-container">
+                                        z: 
+                                </div>
+                                <div class="field-container">
+                                        <input id="objectZ" type="number" class="form-control">
+                                </div>
+                        </div>
+                    
+                            
+                            <BR>
+                                <button class="btn btn-primary btn-block" onclick="changeObjectData()" >Save Changes</button>
+                    </div>        
+                </div>
+        </div> 
+</div>
+          
+    
+            
+
+</div>
+        
+        <div id="interactiveLabel0" style="position: absolute; top:px; left:0px;z-index:+3">
+                        <div id="label0"class="sd-labeltext" onmouseenter="hoverInteractiveItem(event,'label')" onmouseout="unhoverInteractiveItem(event,'label')" onclick="loadInteractiveItem(0)">Label0</div> <div class="sd-labelline"></div>
+        </div>
+        <div id="interactiveLabel1" style="position: absolute; top:px; left:0px;z-index:+3;">
+                        <div id="label1" class="sd-labeltext" onmouseenter="hoverInteractiveItem(event,'label')" onmouseout="unhoverInteractiveItem(event,'label')" onclick="loadInteractiveItem(1)">Label1</div> <div class="sd-labelline"></div>
+        </div>
+      
+
+       
+
+        <div id="interactive-items-menu" style="position:absolute; z-index:+101; top:300px; left: 50px; ">
+        <button id="button-label0" class="sd-interactive-button" onclick="loadInteractiveItem(0)" onmouseenter="hoverInteractiveItem(event,'button')" onmouseout="unhoverInteractiveItem(event,'button')">Interactive Item0</button>
+        <button id="button-label1" class="sd-interactive-button" onclick="loadInteractiveItem(1)" onmouseenter="hoverInteractiveItem(event,'button')" onmouseout="unhoverInteractiveItem(event,'button')">Interactive Item1</button>
+        
+        </div>
+        
+
+        <div id="letsDesign0" class="sd-container" style="display:none;">
+                        <div class="sd-controls">
+                                        <button class="sd-control-button" onclick="document.getElementById('letsDesign0').style.display='none'">X</button>
+                        </div>
+                        
+                    <div class="sd-title">
+                        Hello title miaw mizi 0
+                    </div>
+                    <div class="sd-content" style="height:100%">
+                        <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                
+                                                                        grid-template-columns:60% auto;  grid-gap: 20px;">
+                            <div  style="grid-area:content;">
+                                        <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                        <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                        <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                        <BR><BR>
+                                                                    </div>      
+                            <div style="grid-area:img;">
+                            <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                            </div>
+                            
+                          
+                        </div>
+
+                        <div class="sd-footer">
+                                         <button class="sd-button">Click me!</button>
+                        </div>
+                                 
+                    </div>
+                </div>
+        
+                <div id="letsDesign1" class="sd-container" style="display:none;">
+                                <div class="sd-controls">
+                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign1').style.display='none'">X</button>
+                                </div>
+                                
+                            <div class="sd-title">
+                                Hello title miaw mizi 1
+                            </div>
+                            <div class="sd-content" style="height:100%">
+                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                        
+                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
+                                    <div  style="grid-area:content;">
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <BR><BR>
+                                                                            </div>      
+                                    <div style="grid-area:img;">
+                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    </div>
+                                    
+                                  
+                                </div>
+
+                                <div class="sd-footer">
+                                                 <button class="sd-button">Click me!</button>
+                                </div>
+                                         
+                            </div>
+                            
+                          
+                </div>
+
+        
+                <div id="controls-on-top" style="position:absolute; top:0; width:100%; background-color: rgba(0, 0, 0, 0.801)">
+                        <img src="./images/prunel_baniere.jpg" style="width:800px; display: block;
+                        margin-left: auto;
+                        margin-right: auto;
+                        max-width: 60%;">
+                </div>
+       
+       
+    <div id="assets" style="display:none;"><img id="landscape-image" src="./reunion_small.png"/><canvas id="canvas1"></canvas>
+        </div>
+    </body>
+    <script src="js/three.js"></script>
+
+    <script src="js/OBJLoader.js"></script>
+    <script src="js/OrbitControls.js"></script> <!-- added so user can rotate the scene with the mouse -->
+    <script src="js/app.js"></script>
+    <script>
+   // (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+    </script>
+</html>
