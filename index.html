@@ -9,8 +9,10 @@
         </style>
         
         <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="./index.css">
+       
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link rel="stylesheet" href="./index.css">
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Quicksand">
 
@@ -19,6 +21,8 @@
 
 <!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="./js/jscolor.js"></script>
 
 
 	</head>
@@ -27,9 +31,13 @@
         <button class="sd-control-button" data-toggle="collapse" data-target="#Controllers" style="position:absolute; z-index:+120; right:0px; color:transparent; border:0; width:15px;height:15px;">
             +
         </button>
+    
+
+  
 
 <div id="Controllers" style="position: absolute; top:10px; right:0px;z-index:+1;" class="collapse">
 
+               
         
         <div id="TestControl" class="or-card">
                 <button class="or-card-title" data-toggle="collapse" data-target="#content">
@@ -57,8 +65,18 @@
                                                         <div class="field-container">
                                                                 <input id="testY" type="number" class="form-control">
                                                         </div>
-                                                </div><BR>
-                                            <button onclick="testFunc(document.getElementById('testX').value,document.getElementById('testY').value)" class="btn">Test!</button>
+                                                </div>
+                                                <div class="fields-container">
+                                                                <div class="fieldname-container">
+                                                                        z:
+                                                                </div>
+                                                                
+                                                                <div class="field-container">
+                                                                        <input id="testZ" type="number" class="form-control">
+                                                                </div>
+                                                        </div>
+                                                <BR>
+                                            <button onclick="testFunc(document.getElementById('testX').value,document.getElementById('testY').value,document.getElementById('testZ').value)" class="btn">Test!</button>
                         </div>
                              
                 </div>
@@ -71,6 +89,10 @@
                         </button>
                 <div id="content1" class="collapse">
                                 <div class="or-card-content">
+
+                                                <div class="checkbox">
+                                                                <label><input type="number" id="speedControl" >Speed</label>
+                                                </div>
 
                                                 <label>Camera Position:</label>
                                                 <BR>
@@ -153,7 +175,7 @@
                             <div class="form-group">
                 
                             <label>Select object:</label>
-                            <select class="form-control" id="objectSelectList"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;">
+                            <select class="form-control" id="objectSelectList_old"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;">
                             </select>
                     </div>
                     
@@ -240,19 +262,12 @@
 
 </div>
         
-        <div id="interactiveLabel0" style="position: absolute; top:px; left:0px;z-index:+3">
-                        <div id="label0"class="sd-labeltext" onmouseenter="hoverInteractiveItem(event,'label')" onmouseout="unhoverInteractiveItem(event,'label')" onclick="loadInteractiveItem(0)">Label0</div> <div class="sd-labelline"></div>
-        </div>
-        <div id="interactiveLabel1" style="position: absolute; top:px; left:0px;z-index:+3;">
-                        <div id="label1" class="sd-labeltext" onmouseenter="hoverInteractiveItem(event,'label')" onmouseout="unhoverInteractiveItem(event,'label')" onclick="loadInteractiveItem(1)">Label1</div> <div class="sd-labelline"></div>
-        </div>
-      
+
 
        
 
         <div id="interactive-items-menu" style="position:absolute; z-index:+101; top:300px; left: 50px; width:14% ">
-        <button id="button-label0" class="sd-interactive-button" onclick="loadInteractiveItem(0)" onmouseenter="hoverInteractiveItem(event,'button')" onmouseout="unhoverInteractiveItem(event,'button')">Interactive Item0</button>
-        <button id="button-label1" class="sd-interactive-button" onclick="loadInteractiveItem(1)" onmouseenter="hoverInteractiveItem(event,'button')" onmouseout="unhoverInteractiveItem(event,'button')">Interactive Item1</button>
+        
         
         </div>
         
@@ -323,6 +338,189 @@
                           
                 </div>
 
+                <div id="letsDesign2" class="sd-container" style="display:none;">
+                                <div class="sd-controls">
+                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign2').style.display='none'">X</button>
+                                </div>
+                                
+                            <div class="sd-title">
+                                Piton
+                            </div>
+                            <div class="sd-content" style="height:100%">
+                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                        
+                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
+                                    <div  style="grid-area:content;">
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <BR><BR>
+                                                                            </div>      
+                                    <div style="grid-area:img;">
+                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    </div>
+                                    
+                                  
+                                </div>
+
+                                <div class="sd-footer">
+                                                 <button class="sd-button">Click me!</button>
+                                </div>
+                                         
+                            </div>
+                            
+                          
+                </div>
+
+                <div id="letsDesign3" class="sd-container" style="display:none;">
+                                <div class="sd-controls">
+                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign3').style.display='none'">X</button>
+                                </div>
+                                
+                            <div class="sd-title">
+                                Piton
+                            </div>
+                            <div class="sd-content" style="height:100%">
+                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                        
+                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
+                                    <div  style="grid-area:content;">
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <BR><BR>
+                                                                            </div>      
+                                    <div style="grid-area:img;">
+                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    </div>
+                                    
+                                  
+                                </div>
+
+                                <div class="sd-footer">
+                                                 <button class="sd-button">Click me!</button>
+                                </div>
+                                         
+                            </div>
+                            
+                          
+                </div>
+
+                <div id="letsDesign4" class="sd-container" style="display:none;">
+                                <div class="sd-controls">
+                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign4').style.display='none'">X</button>
+                                </div>
+                                
+                            <div class="sd-title">
+                                Piton
+                            </div>
+                            <div class="sd-content" style="height:100%">
+                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                        
+                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
+                                    <div  style="grid-area:content;">
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <BR><BR>
+                                                                            </div>      
+                                    <div style="grid-area:img;">
+                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    </div>
+                                    
+                                  
+                                </div>
+
+                                <div class="sd-footer">
+                                                 <button class="sd-button">Click me!</button>
+                                </div>
+                                         
+                            </div>
+                            
+                          
+                </div>
+
+                <div id="letsDesign5" class="sd-container" style="display:none;">
+                                <div class="sd-controls">
+                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign5').style.display='none'">X</button>
+                                </div>
+                                
+                            <div class="sd-title">
+                                Piton
+                            </div>
+                            <div class="sd-content" style="height:100%">
+                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
+                                                                                                        
+                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
+                                    <div  style="grid-area:content;">
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
+                                                <BR><BR>
+                                                                            </div>      
+                                    <div style="grid-area:img;">
+                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    </div>
+                                    
+                                  
+                                </div>
+
+                                <div class="sd-footer">
+                                                 <button class="sd-button">Click me!</button>
+                                </div>
+                                         
+                            </div>
+                            
+                          
+                </div>
+
+                <div id="smallMap" style="position:absolute; z-index:+200; bottom:0; right:0; width:200px; height:200px; background-color:white; margin:20px;  border: 1px solid gainsboro;" >
+                        <img src="./reunionsat.jpg" style="width:100%; height:100%" onclick="onMiniMapClick(event)">
+                        <span id="positionMark" class="glyphicon glyphicon-screenshot" style="color:white; position:absolute; top:-8px; left:-8px; z-index:201; font-size:16px;"></div>
+                </div>
+
+                <div id="userMenu" class="userMenu-container">
+                        <div class="userMenu-block">
+                              <div class="userMenu-block-title">
+                                     View Controls
+                              </div>
+
+                                <div class="userMenu-control">
+                                                <input id="topView" type="checkbox" checked data-toggle="toggle" data-size="mini" data-style="ios">
+                                                <span>Top view </span>
+                                </div>
+
+                                <div class="userMenu-control">
+                                                <input id="hideAirViewPicture" type="checkbox" checked data-toggle="toggle" data-size="mini"> <span>hide air view</span>
+                                </div>  
+
+                                <div class="userMenu-control">
+                                                <span>Year</span><BR>
+                                                        2018 <input type="range" min="1" max="100" value="50" class="slider" style="width:150px; display:inline-block"> 2040
+                                </div>
+                        </div>
+                      <div>
+                                <div class="userMenu-block-title">
+                                               Object Controls
+                                </div>
+                                <div class="userMenu-control">
+                                        <span>Selected Object:</span> <select  style="width:140px; font-size:12px; background-color:rgb(70, 70, 70); border:0;"   id="objectSelectList"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;"></select>
+                                </div>
+
+                                <div class="userMenu-control">
+                                                <input id="hideObject" type="checkbox" checked data-toggle="toggle" data-size="mini"> <span>hideobject</span> 
+                                </div>
+                                <div class="userMenu-control">
+                                                <span>Color:</span> <input class="jscolor" value="ab2567" autocomplete="off" style="background-image: none; background-color: rgb(171, 37, 103); color: rgb(255, 255, 255); border:0; text-align:center; font-size:11px; width:55px;">
+                                </div>
+                        
+                                        
+                      </div>
+                      
+        
+
+                </div>
+
         
                 <div id="controls-on-top" style="position:absolute; top:0; width:100%; background-color: rgba(0, 0, 0, 0.801)">
                         <img src="./images/prunel_baniere.jpg" style="width:800px; display: block;
@@ -332,7 +530,9 @@
                 </div>
        
        
-    <div id="assets" style="display:none;"><img id="landscape-image" src="./reunion_small.png"/><canvas id="canvas1"></canvas>
+        <div id="assets" style="display:none;">
+            <img id="landscape-image" src="./reunion_small.png"/><canvas id="canvas1"></canvas>
+                <img id="sealevel-image" src="./sealevel300.png"/><canvas id="canvas2"></canvas>
         </div>
     </body>
     <script src="js/three.js"></script>
@@ -341,6 +541,6 @@
     <script src="js/OrbitControls.js"></script> <!-- added so user can rotate the scene with the mouse -->
     <script src="js/app.js"></script>
     <script>
-   // (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+   (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
     </script>
 </html>

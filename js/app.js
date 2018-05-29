@@ -1,8 +1,17 @@
 // -20.884850, 55.467112 = 0 point of our world. (in coordinates)
 
+/*some points (threejs meters)
 
+piton des neige: 1500, - 23700, 4500;
+RUN airpot: 4700, -598, 0
+saint marie : 8409, -1712, ?
+saint suzane: 14029 , -3071, ?
+*/
+
+var nonInteractiveLabels = [];
+var altitudes =[];
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 25000 );
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 70000 );
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
@@ -11,28 +20,36 @@ var theta=0, radius =100;
 var renderer = new THREE.WebGLRenderer();
 
 renderer.setSize( window.innerWidth, window.innerHeight);
+
 document.body.appendChild( renderer.domElement );
 
 camera.position.set( -700, 1300 , 860 );
+
 camera.up = new THREE.Vector3(0,0,1);
 //camera.lookAt( new THREE.Vector3( -650  , -500 , 300 ) );
 
 //add Orbit Controls
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.target = new THREE.Vector3( -650  , -500 , 300)
+updatePositionMark(controls.target);
 controls.minPolarAngle=0.1*Math.PI/2;
 controls.maxPolarAngle=0.98*Math.PI/2;
-controls.autoRotateSpeed = 0.2  ;
+controls.autoRotateSpeed = 0.2 ;
 controls.autoRotate = true;
 
 
-
+var inFlight = false; // determine if currently flying
 var imgmat =  null; //used in addGround();
 var myObjects = []; //all objects to be controled with admin controls need to be pushed here
 var unselectableObjects = [];   //objects that would not be able to select by click / have hover effect when mouse on them 
 let interactiveObjects = [] //all objects that should be interactive (have label and menu button and extra features)
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
+
+
+
+
+
 
 addLights();
 initObjects();
@@ -56,6 +73,9 @@ setObjectsInSelectList(myObjects)
 
 window.addEventListener( 'mousemove', onMouseMove, false );
 window.addEventListener( 'mousedown', onMouseClick, false );
+
+createInteractiveGUI();
+
 animate();
 
 function createImagePlane(){
@@ -162,8 +182,30 @@ function getTerrainPixelData(){
   return normPixels;
 }
  
+
+function getSeaLevelData(){
+    var img = document.getElementById("sealevel-image");
+   
+    var canvas = document.getElementById("canvas2");
+    
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+  
+    var data = canvas.getContext('2d').getImageData(0,0, img.height, img.width).data;
+    var normPixels = []
+  
+    for (var i = 0, n = data.length; i < n; i += 4) {
+      // get the average value of R, G and B.
+      normPixels.push((data[i] + data[i+1] + data[i+2]) / 3);
+    }
+  
+    
+    return normPixels;
+  }
+
 function addGround() {
-    //go to zero point => +29.84[km] in X, 7.21[km] in Y
+    //go to zero point => -29.84[km] in X, +7.21[km] in Y
     /*imgdata??
     originial pixels = 2592
     
@@ -193,15 +235,10 @@ function addGround() {
         wireframe: true
       });
 
-    material2= new  THREE.MeshPhongMaterial({
-        color: 0x2d852d,
-        polygonOffset: true,
-        polygonOffsetFactor: 1, // positive value pushes polygon further away
-        polygonOffsetUnits: 1
-    });
+
 
     terrain = getTerrainPixelData();  
-    
+    sealevel = getSeaLevelData();
     
 
     // keep in mind, that the plane has more vertices than segments. If there's one segment, there's two vertices, if
@@ -210,14 +247,52 @@ function addGround() {
     // "skewing the landscape" then..
   
     // to check uncomment the next line, numbers should be equal
-     console.log("length: " + terrain.length + ", vertices length: " + geometry.vertices.length);
+    console.log("length: " + terrain.length + ", vertices length: " + geometry.vertices.length);
+
+    /*rying buffer:
+    var bufferGeometry = new THREE.BufferGeometry();
+    
+   var vertices = [];
+    
+    for ( var i = 0, j = 0, l = vertices.length; i < terrain.length; i ++, j += 3 ) {
+        if(terrain[i] != 0){
+        
+        y=Math.floor(i/300)
+        x=(i - y*300);
+
+        var terrainValue = terrain[i] / 255;
+        vertices.push(x *74830 /300);
+        vertices.push(y* 80060/300);
+        vertices.push(terrainValue *3036 *1.5 );
+        }
+        
+    }
+    var buffervertices = new Float32Array();
+    var buffervertices = Float32Array.from(vertices)
+    console.log(buffervertices)
+    bufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( buffervertices, 3 ) );
   
+   
+
+finish try code*/
+   
+
     for (var i = 0, l = geometry.vertices.length; i < l; i++)
-    {
+    {   
         var terrainValue = terrain[i] / 255;
         geometry.vertices[i].z = geometry.vertices[i].z + terrainValue *3036 *1.5 ;
+        
+        if (sealevel[i] == 0){
+            geometry.vertices[i].z = -2000;
+        }
+      
+        
          
     }
+    
+   
+
+ 
    
    
   
@@ -237,10 +312,12 @@ function addGround() {
     plane.position.x=+74830/2 -29840;
     plane.position.y=-80060/2 +7210;
     plane.position.z=-30;
+  
     scene.add(plane)
+    
     myObjects.push(plane)
     unselectableObjects.push(plane);
-
+    altitudes =JSON.parse(JSON.stringify(plane.geometry.vertices));
 /*
     plane2.position = new THREE.Vector3(0,0,0);
  
@@ -256,7 +333,23 @@ function addGround() {
     scene.add(plane2)
     myObjects.push(plane2)
     unselectableObjects.push(plane2);*/
+
+    var geometry = new THREE.PlaneGeometry(90000, 90000,10,10);
+    var material = new THREE.MeshBasicMaterial({
+        color: 0x000000
+    })
+   
+    var seaplane = new THREE.Mesh(geometry,material);
+    seaplane.position.x=+74830/2 -29840;
+    seaplane.position.y=-80060/2 +7210;
+    seaplane.position.z=-155;
+    unselectableObjects.push(seaplane);
+    scene.add(seaplane);
+
+    
   }
+
+
 
  
 
@@ -290,6 +383,60 @@ function initObjects(){
    myObjects.push(cube2)
    interactiveObjects.push(cube2)
 
+   var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+   var geo = new THREE.CubeGeometry (1,1,1)
+   var place = new THREE.Mesh( geo, material);
+   place.name="Piton des Neiges";
+   place.position.x =1500;
+   place.position.y =-23700;
+   place.position.z = 4500;
+   
+   scene.add(place)
+   myObjects.push(place)
+   interactiveObjects.push(place)
+
+   var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+   var geo = new THREE.CubeGeometry (1,1,1)
+   var place = new THREE.Mesh( geo, material);
+   place.name="Roland Garros Airport";
+   place.position.x =4700;
+   place.position.y =-598;
+   place.position.z = 0;
+   
+   scene.add(place)
+   myObjects.push(place)
+   nonInteractiveLabels.push(place)
+
+   var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+   var geo = new THREE.CubeGeometry (1,1,1)
+   var place = new THREE.Mesh( geo, material);
+   place.name="Saint Marie";
+   place.position.x =8409;
+   place.position.y =-1712;
+   place.position.z = 0;
+   
+   scene.add(place)
+   myObjects.push(place)
+   nonInteractiveLabels.push(place)
+
+   var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+   var geo = new THREE.CubeGeometry (1,1,1)
+   var place = new THREE.Mesh( geo, material);
+   place.name="Saint Suzane";
+   place.position.x =14029;
+   place.position.y =-3071;
+   place.position.z = 0;
+   
+   scene.add(place)
+   myObjects.push(place)
+   nonInteractiveLabels.push(place)
+
+/*
+   piton des neige: 1500, - 23700, 4500;
+   RUN airpot: 4700, -598, 0
+   saint marie : 8409, -1712, ?
+   saint suzane: 14029 , -3071, ?
+   */
 
    
    
@@ -303,6 +450,8 @@ function initObjects(){
 
 
 function changeCameraPosition(){
+    controls.autoRotateSpeed = 0.2 * (+document.getElementById("speedControl").value);
+    console.log( controls.autoRotateSpeed)
     var posx = document.getElementById("cameraX");
     var posy = document.getElementById("cameraY");
     var posz = document.getElementById("cameraZ");
@@ -416,9 +565,9 @@ function changeObjectData(){
     
 }
 
-function testFunc(x,y){
-    console.log(document.documentElement.clientHeight)
-   
+function testFunc(x,y,z){
+    
+   updatePositionMark({x:x,y:y,z:z});
 
 }
 
@@ -432,6 +581,8 @@ function onLoadBody(){
     document.getElementById("lookatX").value = controls.target.x;
    document.getElementById("lookatY").value = controls.target.y;
   document.getElementById("lookatZ").value = controls.target.z;
+
+  
     
 }
 
@@ -575,25 +726,103 @@ function render() {
 
 function animate() {
     requestAnimationFrame( animate );
-    updateLabels();
+    
     controls.update();
     render();
+    updateLabels();
 }
 
-function convertCoordinates(realX,realY){
-   
-    var coordinatesTerrainLength = 0.72; //cordinate distance unit
-    var terrainLength = 2592; //threejs distance unit
-    var coordinatesOrigin = {x:55.18, y: -20.82}
+function convertCoordinates(lon2,lat2){
+   // -20.884850, 55.467112 = 0 point of our world. (in coordinates)
+    var o = {x:55.467112, y:-20.884850};
+    lat1 = o.y;
+    lon1 = o.x;
     
-    var newX = (realX - coordinatesOrigin.x) * ( terrainLength / coordinatesTerrainLength );
-    var newY = (realY - coordinatesOrigin.y) * ( terrainLength / coordinatesTerrainLength );
-    console.log('x:'+newX+'y:'+newY)
-    return {x:newX,y:newY}
+    var R = 6378.137; // Radius of earth in KM
+    var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+    var dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+
+    var dX = dLon * R *Math.sin((90-lat1) * Math.PI / 180) * 1000;
+    var dY = dLat * R * 1000;
+
+    return {x:dX, y:dY}
+   
+    
+  
+
 
 
 
 }
+
+
+function createInteractiveGUI(){
+
+    for(let i=0; i< interactiveObjects.length; i++){
+        //menu items:
+        var menu = document.getElementById("interactive-items-menu");
+
+        var btn = document.createElement("button");
+        btn.id="button-label"+i;
+        btn.classList.add("sd-interactive-button");
+        btn.addEventListener("click",function() {loadInteractiveItem(i)},false)
+        btn.addEventListener("mouseenter",function(){hoverInteractiveItem(event,'button')},false)
+        btn.addEventListener("mouseout",function(){unhoverInteractiveItem(event,'button')},false)
+        
+        btn.appendChild(document.createTextNode(interactiveObjects[i].name))
+        menu.appendChild(btn);
+
+        //labels:
+
+        
+
+        var labelparent = document.createElement("div");
+        labelparent.id="interactiveLabel"+i;
+        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3";
+
+        var label = document.createElement("div"); //creating tag
+        label.id="label"+i;
+        label.classList.add("sd-labeltext");
+        label.addEventListener("click",function() {loadInteractiveItem(i)},false)
+        label.addEventListener("mouseenter",function(){hoverInteractiveItem(event,'label')},false)
+        label.addEventListener("mouseout",function(){unhoverInteractiveItem(event,'label')},false)
+        label.appendChild(document.createTextNode(interactiveObjects[i].name))
+
+        labelparent.appendChild(label); //adding tag
+
+        var line = document.createElement("div"); //creating and adding line
+        line.classList.add("sd-labelline");
+        labelparent.appendChild(line); 
+
+        document.body.appendChild(labelparent);
+    }
+
+    //now just labels that are noninteratice:
+    for(let i=0; i< nonInteractiveLabels.length; i++){
+      
+        var labelparent = document.createElement("div");
+        labelparent.id="nonInteractiveLabel"+i;
+        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3";
+    
+        var label = document.createElement("div"); //creating tag
+        label.id="ni_label"+i;
+        label.classList.add("sd-labeltext");
+        label.style.cursor="default";
+        
+        label.appendChild(document.createTextNode(nonInteractiveLabels[i].name))
+    
+        labelparent.appendChild(label); //adding tag
+    
+        var line = document.createElement("div"); //creating and adding line
+        line.classList.add("sd-labelline");
+        labelparent.appendChild(line); 
+    
+        document.body.appendChild(labelparent);
+    }
+    
+   
+}
+
 
 function toScreenPosition(obj, camera){              //calc 2d coordinate of object
 
@@ -620,10 +849,20 @@ function updateLabels(){
 
     for( let i=0; i< interactiveObjects.length; i++){
 
-        var proj = toScreenPosition(myObjects[i], camera);
+        var proj = toScreenPosition(interactiveObjects[i], camera);
         
         document.getElementById("interactiveLabel"+i).style.left=proj.x+'px';
         document.getElementById("interactiveLabel"+i).style.top=proj.y+'px';
+       
+
+    }
+
+    for( let i=0; i< nonInteractiveLabels.length; i++){
+
+        var proj = toScreenPosition(nonInteractiveLabels[i], camera);
+        
+        document.getElementById("nonInteractiveLabel"+i).style.left=proj.x+'px';
+        document.getElementById("nonInteractiveLabel"+i).style.top=proj.y+'px';
        
 
     }
@@ -662,10 +901,125 @@ function unhoverInteractiveItem(event,hovered){
 
 
 function loadInteractiveItem(id) {
+    
+    for(let i=0; i < interactiveObjects.length; i++){
+        document.getElementById("letsDesign"+i).style.display="none";
+    }
 
-    document.getElementById("letsDesign"+0).style.display="none";
-    document.getElementById("letsDesign"+1).style.display="none";
-    document.getElementById("letsDesign"+id).style.display="block";
+    flyTo(interactiveObjects[id].position,2).then( ()=>{
+        setTimeout(()=>{
+            document.getElementById("letsDesign"+id).style.display="block";
+        },300)
+      
+    } );
+
+   
+}
+
+function flyTo(target,time){
+    return new Promise(function(resolve,reject){
+
+        if( inFlight) {
+            reject();
+            return;
+        }
+
+        inFlight=true;
+        var T = time; //flight time in seconds;
+   
+
+   
+        t = 0;
+        var startpoint = {x:0,y:0,z:0};
+        startpoint.x = 0 + camera.position.x;
+        startpoint.y = 0 + camera.position.y;
+        startpoint.z = 0 + camera.position.z;
+    
+        var starttarget = {x:+controls.target.x,y:+controls.target.y,z:+controls.target.z};
+    
+        var i = setInterval(function(){
+        
+            
+            camera.position.x= startpoint.x +(target.x-10-startpoint.x)*Math.sin((Math.PI*1/2)*(t/T)) ;
+            camera.position.y=startpoint.y +(target.y+1700-startpoint.y)*Math.sin((Math.PI*1/2)*(t/T)) ;
+            camera.position.z=startpoint.z +(target.z+560-startpoint.z)*Math.sin((Math.PI*1/2)*(t/T)) + 200*(1-t*(t-T));
+           
+           
+            
+            camera.lookAt( new THREE.Vector3( starttarget.x+(target.x-starttarget.x)*Math.sin((Math.PI*1/2)*(t/T)), starttarget.y+(target.y-starttarget.y)*Math.sin((Math.PI*1/2)*(t/T)), starttarget.z+(target.z-starttarget.z)*Math.sin((Math.PI*1/2)*(t/T)) ));
+            controls.target = new THREE.Vector3( starttarget.x+(target.x-starttarget.x)*Math.sin((Math.PI*1/2)*(t/T)), starttarget.y+(target.y-starttarget.y)*Math.sin((Math.PI*1/2)*(t/T)), starttarget.z+(target.z-starttarget.z)*Math.sin((Math.PI*1/2)*(t/T)) );
+    
+            updatePositionMark(controls.target);
+            
+    
+            t += 1/60;
+            
+            if(t > T) {
+                clearInterval(i);
+                console.log('position:',camera.position,'target:',controls.target)
+                inFlight=false;
+                resolve();
+            }
+        }, 1000/60);
+
+    });
+   
+
+    
+        
+    
+  
+    
+
+    
+
+}
+
+function onMiniMapClick(event){
+    //200x200 = minimap res
+    //world res = 300x300px , 74830 x 80060 meters
+    // x,y on minimap => x/200 y/200 will be numbers between 0 to 1 and will be doubled in the max length of the axis..
+    var x,y;
+    
+    x =  74830*event.layerX/200;
+    y = -80060*event.layerY/200;
+  
+    //now we need to consider that our 0 point in the map is located on:    +29840,-7210; so:
+
+    x+=-29840;
+    y+=+7210;
+
+   
+    xpixel=Math.floor(event.layerX*300/200)
+    ypixel= Math.floor(event.layerY*300/200)
+    index = xpixel + 300*(ypixel)
+
+    z=altitudes[index].z
+    if (z<0){z=0;}
+
+    console.log('chosen spot is ',x,y,z)
+    
+    //and now lets fly to it..
+
+   flyTo({x:x,y:y,z:z},2)
+    
+}
+
+function updatePositionMark(newposition){
+    var x,y;
+    x=+newposition.x;
+    y=+newposition.y;
+    console.log(x)
+    x+=29840;
+    y-=7210;
+    console.log(x)
+
+    x= 200*x/74830;
+    y= 200*y/80060;
+
+    console.log(x,y)
+    document.getElementById("positionMark").style.left = -8 + x +'px';
+    document.getElementById("positionMark").style.top = -8 - y +'px';
 }
 
 
