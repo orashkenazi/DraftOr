@@ -1019,7 +1019,10 @@ function unhoverInteractiveItem(event,hovered){
 function loadInteractiveItem(id) {
     
     for(let i=0; i < interactiveObjects.length; i++){
+       
         document.getElementById("letsDesign"+i).style.display="none";
+  
+        
     }
     dx=camera.position.x-interactiveObjects[id].position.x;
     dy=camera.position.y-interactiveObjects[id].position.y;
@@ -1027,8 +1030,32 @@ function loadInteractiveItem(id) {
     console.log(dl)
     
     flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
-        setTimeout(()=>{
-            document.getElementById("letsDesign"+id).style.display="block";
+        setTimeout(()=>{ 
+            //correcT:
+            //document.getElementById("letsDesign"+id).style.display="block";
+
+            //just for demo:
+            console.log(interactiveObjects[id].name)
+            if(interactiveObjects[id].name==="Zone 1"){
+                document.getElementById('letsDesign0').style.display='block';
+            }
+    
+            if(interactiveObjects[id].name==="Zone 2"){
+                document.getElementById('letsDesign1').style.display='block';
+            }
+    
+            if(interactiveObjects[id].name==="Zone 3"){
+                document.getElementById('letsDesign2').style.display='block';
+            }
+    
+            if(interactiveObjects[id].name==="Main Street"){
+                document.getElementById('letsDesign3').style.display='block';
+            }
+    
+            if(interactiveObjects[id].name==="Piton des Neiges"){
+                document.getElementById('letsDesign4').style.display='block'; 
+            }
+
         },500)
       
     } );
@@ -1244,7 +1271,26 @@ function openInteractiveByClick(obj){
     var index = interactiveObjects.indexOf(obj); // if -1, it doesnt exist..
     
     if (index != -1) {
-        document.getElementById('letsDesign'+index).style.display='block';
+        if(obj.name==="Zone 1"){
+            document.getElementById('letsDesign0').style.display='block';
+        }
+
+        if(obj.name==="Zone 2"){
+            document.getElementById('letsDesign1').style.display='block';
+        }
+
+        if(obj.name==="Zone 3"){
+            document.getElementById('letsDesign2').style.display='block';
+        }
+
+        if(obj.name==="Main Street"){
+            document.getElementById('letsDesign3').style.display='block';
+        }
+
+        if(obj.name==="Piton des Neiges"){
+            document.getElementById('letsDesign4').style.display='block'; 
+        }
+        
     }
 }
 
