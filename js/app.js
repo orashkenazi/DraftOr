@@ -7,9 +7,10 @@ RUN airpot: 4700, -598, 0
 saint marie : 8409, -1712, ?
 saint suzane: 14029 , -3071, ?
 */
-
+var buildingsref = 1;
+var airpicref = null;
 var nonInteractiveLabels = [];
-var altitudes =[];
+var altitudes =[];  //help to calc altitude when clicking on minimap to know what altitude to fly to... (because mini map choose only x,y)
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 70000 );
 
@@ -18,6 +19,7 @@ var mouse = new THREE.Vector2(),INTERSECTED;
 var theta=0, radius =100;
 
 var renderer = new THREE.WebGLRenderer();
+renderer.domElement.id = 'renderer';
 
 renderer.setSize( window.innerWidth, window.innerHeight);
 
@@ -42,7 +44,8 @@ var inFlight = false; // determine if currently flying
 var imgmat =  null; //used in addGround();
 var myObjects = []; //all objects to be controled with admin controls need to be pushed here
 var unselectableObjects = [];   //objects that would not be able to select by click / have hover effect when mouse on them 
-let interactiveObjects = [] //all objects that should be interactive (have label and menu button and extra features)
+let interactiveObjects = [] //all objects that should be interactive (have label and menu button and extra features).
+var hoverColor = new THREE.Color( 0x4C43D5 );
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 
@@ -52,7 +55,7 @@ let selectedObjectIndex;                  //the current selected object in the l
 
 
 addLights();
-initObjects();
+
 createImagePlane();
 createTerrainMaterial();
 
@@ -61,12 +64,25 @@ createTerrainMaterial();
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings');
+loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:true, buildref:true});
 //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
 
-loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof');
-loadingOBJObject('./models/saint-denis/prunel_streets.obj','street');
-setObjectsInSelectList(myObjects)
+loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:true});
+loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:true});
+loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Main Street',{offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-199,z:-10}, interactive:true, color:new THREE.Color( 0x30D97D)});
+
+
+
+loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:true})
+
+loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:0,y:0,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:true});
+
+loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:true});
+
+
+
+
+
 
 
 
@@ -74,9 +90,9 @@ setObjectsInSelectList(myObjects)
 window.addEventListener( 'mousemove', onMouseMove, false );
 window.addEventListener( 'mousedown', onMouseClick, false );
 
-createInteractiveGUI();
 
-animate();
+
+
 
 function createImagePlane(){
      // instantiate a loader
@@ -99,9 +115,13 @@ loader.load(
          var plane = new THREE.Mesh(geometry,material)
          plane.name = "plane with image";
        
-         myObjects.push(plane);
+         //myObjects.push(plane);
+         airpicref = plane;
          unselectableObjects.push(plane);
          scene.add(plane);
+         console.log('Air Picture added')
+
+         setObjectsInSelectList(myObjects)
 
         
 	},
@@ -307,7 +327,7 @@ finish try code*/
     q.setFromAxisAngle( new THREE.Vector3(0,0,0), 90 * Math.PI / 180 );
     plane.quaternion.multiplyQuaternions( q, plane.quaternion );
 
-    plane.name="plane";
+    plane.name="terrain";
    
     plane.position.x=+74830/2 -29840;
     plane.position.y=-80060/2 +7210;
@@ -358,10 +378,11 @@ finish try code*/
 
 function initObjects(){
     // building some boxes!
-   var material = new THREE.MeshPhongMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
+    /*
+   var material = new THREE.MeshPhongMaterial( {color: 0xff0000, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
    var geo = new THREE.CubeGeometry (8,8,30)
    var cube = new THREE.Mesh( geo, material);
-   cube.name="My Box Bulding";
+   cube.name="Zone 1";
    cube.position.x =11;
    cube.position.y =19;
    cube.position.z = 15
@@ -371,10 +392,10 @@ function initObjects(){
    interactiveObjects.push(cube)
 
 
-   var material = new THREE.MeshPhongMaterial( {color: 0x00ff00, side: THREE.DoubleSide} );
+   var material = new THREE.MeshPhongMaterial( {color: 0x00ff00, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
    var geo = new THREE.CubeGeometry (7,7,20)
    var cube2 = new THREE.Mesh( geo, material);
-   cube2.name="My Box Bulding";
+   cube2.name="Zone 2";
    cube2.position.x =33;
    cube2.position.y =-29;
    cube2.position.z = 10
@@ -383,8 +404,22 @@ function initObjects(){
    myObjects.push(cube2)
    interactiveObjects.push(cube2)
 
+   
+   var material = new THREE.MeshPhongMaterial( {color: 0x00ff00, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
+   var geo = new THREE.CubeGeometry (100,100,60)
+   var cube2 = new THREE.Mesh( geo, material);
+   cube2.name="Zone 3";
+   cube2.position.x =330;
+   cube2.position.y =-29;
+   cube2.position.z = 10
+   cube2.rotateZ(Math.PI/2.8)
+   scene.add(cube2)
+   myObjects.push(cube2)
+   interactiveObjects.push(cube2) */
+
+
    var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
-   var geo = new THREE.CubeGeometry (1,1,1)
+   var geo = new THREE.CubeGeometry (1,1,1    )
    var place = new THREE.Mesh( geo, material);
    place.name="Piton des Neiges";
    place.position.x =1500;
@@ -404,7 +439,7 @@ function initObjects(){
    place.position.z = 0;
    
    scene.add(place)
-   myObjects.push(place)
+   //myObjects.push(place)
    nonInteractiveLabels.push(place)
 
    var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
@@ -416,7 +451,7 @@ function initObjects(){
    place.position.z = 0;
    
    scene.add(place)
-   myObjects.push(place)
+   //myObjects.push(place)
    nonInteractiveLabels.push(place)
 
    var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
@@ -428,7 +463,7 @@ function initObjects(){
    place.position.z = 0;
    
    scene.add(place)
-   myObjects.push(place)
+   //myObjects.push(place)
    nonInteractiveLabels.push(place)
 
 /*
@@ -485,11 +520,12 @@ function setObjectsInSelectList(objects){                            //creating 
         var opt = document.createElement('option');
         opt.value = i;
         opt.innerHTML = objects[i].name;
+  
         selectList.appendChild(opt);
     }
     selectList.selectedIndex = -1;
     selectedObjectIndex = selectList.selectedIndex
-    document.getElementById("ObjectData").style.display ="none";
+    
 }
 
 
@@ -505,7 +541,7 @@ function changeSelectedObjectByClick(){
 }
 function changeSelectedObject(){
 
-    
+    document.getElementById("objectData").style.display="block"
     selectedObjectIndex = document.getElementById("objectSelectList").value;
     var selectedObject = myObjects[selectedObjectIndex]
     
@@ -514,26 +550,30 @@ function changeSelectedObject(){
 
     if (unselectableObjects.indexOf(selectedObject)==-1){
      document.getElementById("objectSelectable").checked = true;
+ 
+
     }
  
     else {
      document.getElementById("objectSelectable").checked = false;
+ 
     }
+
+    
     
     
    
-   document.getElementById("objectR").value =selectedObject.material.color.r*255;
-   document.getElementById("objectG").value =selectedObject.material.color.g*255;
-   document.getElementById("objectB").value =selectedObject.material.color.b*255;
+  
    document.getElementById("objectX").value=selectedObject.position.x;
    document.getElementById("objectY").value=selectedObject.position.y;
    document.getElementById("objectZ").value=selectedObject.position.z;
-
+   document.getElementById("colorInput").jscolor.fromRGB(selectedObject.material.color.r*255,selectedObject.material.color.g*255,selectedObject.material.color.b*255)
+  document.getElementById("hideObject").checked =  !myObjects[selectedObjectIndex].visible 
 
 
 
     console.log("Selected object index changed to:"+selectedObjectIndex+', the object name is: "'+myObjects[selectedObjectIndex].name+'".')
-    document.getElementById("ObjectData").style.display ="block";
+    
 
 }
 
@@ -543,13 +583,13 @@ function changeObjectData(){
     var x = +document.getElementById("objectX").value;
     var y = +document.getElementById("objectY").value;
     var z = +document.getElementById("objectZ").value;
-    var r = document.getElementById("objectR").value;
-    var g = document.getElementById("objectG").value;
-    var b = document.getElementById("objectB").value;
-
+    var colorString = document.getElementById("colorInput").jscolor.toRGBString();
     
-    myObjects[selectedObjectIndex].material.color = new THREE.Color(r/255,g/255,b/255);
+    
+    
+    myObjects[selectedObjectIndex].material.color = new THREE.Color(colorString);
     myObjects[selectedObjectIndex].position.set(x,y,z);
+    myObjects[selectedObjectIndex].visible = !document.getElementById("hideObject").checked
 
     //unselectable changing:
     if ((document.getElementById("objectSelectable").checked == false) && (unselectableObjects.indexOf(myObjects[selectedObjectIndex])==-1)){
@@ -560,19 +600,25 @@ function changeObjectData(){
         unselectableObjects.splice(unselectableObjects.indexOf(myObjects[selectedObjectIndex]),1);
         }
        
-        console.log(unselectableObjects)
+        
 
     
 }
 
 function testFunc(x,y,z){
     
-   updatePositionMark({x:x,y:y,z:z});
+  
 
 }
 
 function onLoadBody(){
     
+    console.log('onLoadBody is running')
+    initObjects();
+    setObjectsInSelectList(myObjects)
+    createInteractiveGUI();
+    document.getElementById("loading").style.display='none';
+    animate();
     
     document.getElementById("cameraX").value = camera.position.x;
     document.getElementById("cameraY").value = camera.position.y;
@@ -583,10 +629,11 @@ function onLoadBody(){
   document.getElementById("lookatZ").value = controls.target.z;
 
   
+  
     
 }
 
-function loadingOBJObject(path,name){
+function loadingOBJObject(path,name,options){
     console.log('starting function loadingOBJ')
     // instantiate a loader
     var loader = new THREE.OBJLoader();
@@ -607,7 +654,7 @@ function loadingOBJObject(path,name){
             }
            
             newObject.name=name;
-            newObject.position.z=0;
+           
           
             
             //spinning:
@@ -617,9 +664,55 @@ function loadingOBJObject(path,name){
              //move to mathias zero point! : 55.45933228, -20.875329,  =~ -49,75
             newObject.position.x=-49;
             newObject.position.y=75;
-            myObjects.push(newObject)
-            unselectableObjects.push(newObject);
-            setObjectsInSelectList(myObjects)
+
+            //ading offset
+            console.log(newObject)
+            if(options.offset){
+                               
+                newObject.position.x += options.offset.x;
+                newObject.position.y += options.offset.y;
+                newObject.position.z += options.offset.z;
+            }
+
+            if (options.offsetChildren){
+                for (let index=0; index< newObject.children.length ; index ++){
+                    newObject.children[index].position.set( options.offsetChildren.x,options.offsetChildren.y,options.offsetChildren.z ) ;
+                }
+                
+                newObject.position.x -= options.offsetChildren.x;
+                newObject.position.y -= options.offsetChildren.y;
+                newObject.position.z -= options.offsetChildren.z;
+            }
+
+            if (options.color) {
+                newObject.material.color = options.color;
+            }
+
+            if (options.interactive){
+                interactiveObjects.push(newObject)
+            }
+            
+            if (options.unselectable){
+                unselectableObjects.push(newObject);
+            }
+
+            if(options.transparent){
+                newObject.material.transparent=true;
+                newObject.material.opacity=0.5;
+            }
+          
+            if (options.hidden!=true){
+                myObjects.push(newObject)  
+            }
+            
+            if(options.buildref){         //just for demo
+                buildingsref = newObject;
+               
+            }
+          
+           
+            
+            console.log(newObject)
             
            
             
@@ -655,7 +748,9 @@ function onMouseMove( event ) {
 
 function onMouseClick( event) {
     
- 
+    if(event.path[0].id!='renderer'){
+        return;
+    }
     
     var intersects = raycaster.intersectObjects(scene.children,true);
     if (intersects.length>0){
@@ -670,6 +765,7 @@ function onMouseClick( event) {
            intersects[0].object.material.color = lastColor;
           
            changeSelectedObjectByClick();
+           openInteractiveByClick(intersects[0].object);
         }
     }
   
@@ -685,10 +781,10 @@ function render() {
 	
     var intersects = raycaster.intersectObjects( scene.children,true );
    
-    
+  
     
 
-    var hoverColor = new THREE.Color( 0,0,1 );
+    
 
    
    
@@ -706,16 +802,19 @@ function render() {
         }
 					if ( INTERSECTED != intersects[ 0 ].object ) {
                         
-						if ( INTERSECTED ) INTERSECTED.material.color = lastColor;
+                        if ( INTERSECTED ) { INTERSECTED.material.color = lastColor;hoverLabelsFake(INTERSECTED,false);}
+                        
 						INTERSECTED = intersects[ 0 ].object
                         lastColor = INTERSECTED.material.color;
-						INTERSECTED.material.color = hoverColor;
+                        INTERSECTED.material.color = hoverColor;
+                        hoverLabelsFake(INTERSECTED,true);
                     }
                     
 				} else {
                     
-					if ( INTERSECTED ) INTERSECTED.material.color = lastColor ;
+					if ( INTERSECTED ) {INTERSECTED.material.color = lastColor ; hoverLabelsFake(INTERSECTED,false); } 
                     INTERSECTED = null;
+                    
                    
 				}
 
@@ -730,6 +829,7 @@ function animate() {
     controls.update();
     render();
     updateLabels();
+    updatePositionMark(controls.target)
 }
 
 function convertCoordinates(lon2,lat2){
@@ -757,7 +857,7 @@ function convertCoordinates(lon2,lat2){
 
 
 function createInteractiveGUI(){
-
+    console.log("initializing Interactive buttons")
     for(let i=0; i< interactiveObjects.length; i++){
         //menu items:
         var menu = document.getElementById("interactive-items-menu");
@@ -873,14 +973,24 @@ function updateLabels(){
 // for interactive items:
 function hoverInteractiveItem(event,hovered){
     if (hovered === 'label'){
+        
         event.target.classList.add('sd-labeltext-active');
         document.getElementById('button-'+event.target.id).classList.add('sd-interactive-button-active');
+
+        var index = event.target.id.slice(5);
+        lastcolor = interactiveObjects[index].material.color;
+        interactiveObjects[index].material.color = hoverColor;
     }
 
     if(hovered === 'button'){
-        
+       
         event.target.classList.add('sd-interactive-button-active');
         document.getElementById(event.target.id.slice(7)).classList.add('sd-labeltext-active');
+        
+        var index = event.target.id.slice(12);
+        
+        lastcolor=interactiveObjects[index].material.color;
+        interactiveObjects[index].material.color = hoverColor;
     }
    
 }
@@ -889,12 +999,18 @@ function unhoverInteractiveItem(event,hovered){
     if (hovered === 'label'){
         event.target.classList.remove('sd-labeltext-active');
         document.getElementById('button-'+event.target.id).classList.remove('sd-interactive-button-active');
+
+        var index = event.target.id.slice(5);
+        interactiveObjects[index].material.color = lastcolor;
     }
 
     if(hovered === 'button'){
         
         event.target.classList.remove('sd-interactive-button-active');
         document.getElementById(event.target.id.slice(7)).classList.remove('sd-labeltext-active');
+        
+        var index = event.target.id.slice(12);
+        interactiveObjects[index].material.color = lastcolor;
     }
    
 }
@@ -905,18 +1021,24 @@ function loadInteractiveItem(id) {
     for(let i=0; i < interactiveObjects.length; i++){
         document.getElementById("letsDesign"+i).style.display="none";
     }
-
-    flyTo(interactiveObjects[id].position,2).then( ()=>{
+    dx=camera.position.x-interactiveObjects[id].position.x;
+    dy=camera.position.y-interactiveObjects[id].position.y;
+    dl=Math.sqrt(dx*dx+dy*dy)
+    console.log(dl)
+    
+    flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
         setTimeout(()=>{
             document.getElementById("letsDesign"+id).style.display="block";
-        },300)
+        },500)
       
     } );
 
    
 }
 
-function flyTo(target,time){
+function flyTo(target,time,zjump,distance){
+
+    
     return new Promise(function(resolve,reject){
 
         if( inFlight) {
@@ -938,11 +1060,11 @@ function flyTo(target,time){
         var starttarget = {x:+controls.target.x,y:+controls.target.y,z:+controls.target.z};
     
         var i = setInterval(function(){
-        
+            
             
             camera.position.x= startpoint.x +(target.x-10-startpoint.x)*Math.sin((Math.PI*1/2)*(t/T)) ;
-            camera.position.y=startpoint.y +(target.y+1700-startpoint.y)*Math.sin((Math.PI*1/2)*(t/T)) ;
-            camera.position.z=startpoint.z +(target.z+560-startpoint.z)*Math.sin((Math.PI*1/2)*(t/T)) + 200*(1-t*(t-T));
+            camera.position.y=startpoint.y +(target.y+200*distance-startpoint.y)*Math.sin((Math.PI*1/2)*(t/T)) ;
+            camera.position.z=startpoint.z +(target.z+100*distance-startpoint.z)*Math.sin((Math.PI*1/2)*(t/T)) + 400*(1-t*(t-T))*zjump;
            
            
             
@@ -952,7 +1074,7 @@ function flyTo(target,time){
             updatePositionMark(controls.target);
             
     
-            t += 1/60;
+            t += 0.016;
             
             if(t > T) {
                 clearInterval(i);
@@ -960,7 +1082,7 @@ function flyTo(target,time){
                 inFlight=false;
                 resolve();
             }
-        }, 1000/60);
+        }, 16);
 
     });
    
@@ -995,13 +1117,16 @@ function onMiniMapClick(event){
     index = xpixel + 300*(ypixel)
 
     z=altitudes[index].z
+    
     if (z<0){z=0;}
-
-    console.log('chosen spot is ',x,y,z)
+    var dz=Math.abs(z-controls.target.z)/2000;
+    console.log('dz=',dz)
+    
     
     //and now lets fly to it..
-
-   flyTo({x:x,y:y,z:z},2)
+    
+    
+   flyTo({x:x,y:y,z:z},2,dz,10)
     
 }
 
@@ -1009,18 +1134,122 @@ function updatePositionMark(newposition){
     var x,y;
     x=+newposition.x;
     y=+newposition.y;
-    console.log(x)
+    
     x+=29840;
     y-=7210;
-    console.log(x)
+    
 
     x= 200*x/74830;
     y= 200*y/80060;
 
-    console.log(x,y)
+    
     document.getElementById("positionMark").style.left = -8 + x +'px';
     document.getElementById("positionMark").style.top = -8 - y +'px';
 }
 
+function adminOn(){
+    if(document.getElementById('adminControls').style.display === 'none'){
+        document.getElementById('adminControls').style.display = 'block';
+    }
+    
+    else {
+        document.getElementById('adminControls').style.display = 'none';
+    }
+}
 
+function hideAirMap(){
+    airpicref.visible = !document.getElementById("hideAirMapPicture").checked;
+}
+
+function topView(){
+    
+    if (document.getElementById("topView").checked){
+        console.log('topview')
+        camera.position.x= 0;
+        camera.position.y= 0;
+        camera.position.z= 900;
+        controls.autoRotateSpeed = 0;
+
+        controls.minPolarAngle=0;
+        controls.maxPolarAngle=0;
+        camera.lookAt( new THREE.Vector3(0,0, 0 ) );
+        controls.target = new THREE.Vector3(0,0, 0 ) ;
+        updatePositionMark(controls.target);
+    }
+
+    else{
+        //reseting controls and camera...
+        camera.position.set( -700, 1300 , 860 );
+
+        camera.up = new THREE.Vector3(0,0,1);
+        //camera.lookAt( new THREE.Vector3( -650  , -500 , 300 ) );
+
+       
+        controls.target = new THREE.Vector3( -650  , -500 , 300)
+        updatePositionMark(controls.target);
+        controls.minPolarAngle=0.1*Math.PI/2;
+        controls.maxPolarAngle=0.98*Math.PI/2;
+        controls.autoRotateSpeed = 0.2 ;
+        controls.autoRotate = true;
+    }
+    
+}
+
+function toggleMenu(){
+    menu=document.getElementById("userMenu");
+    arrow=document.getElementById('menuArrow');
+    if (menu.classList.contains('off')){
+        menu.classList.remove('off')
+        document.getElementById("toggleMenuButton").style.left="320px"
+      
+        
+        arrow.classList.remove('glyphicon-menu-left')
+        arrow.classList.add('glyphicon-menu-right')
+
+    }
+
+    else {
+        menu.classList.add('off');
+        document.getElementById("toggleMenuButton").style.left="0px"
+        
+        
+        arrow.classList.remove('glyphicon-menu-right')
+        arrow.classList.add('glyphicon-menu-left')
+
+    }
+}
+
+function hoverLabelsFake(obj,hover){
+    
+   
+    var index = interactiveObjects.indexOf(obj); // if -1, it doesnt exist..
+    
+    if (index != -1) {              // if it exist, we need to fake hover (crate labels effects...)
+       
+        if(hover){
+            document.getElementById('label'+index).classList.add('sd-labeltext-active');
+            document.getElementById('button-label'+index).classList.add('sd-interactive-button-active');
+        }
+
+        if(!hover){
+            document.getElementById('label'+index).classList.remove('sd-labeltext-active');
+            document.getElementById('button-label'+index).classList.remove('sd-interactive-button-active');
+        }
+       
+    }
+
+}
+
+function openInteractiveByClick(obj){
+    var index = interactiveObjects.indexOf(obj); // if -1, it doesnt exist..
+    
+    if (index != -1) {
+        document.getElementById('letsDesign'+index).style.display='block';
+    }
+}
+
+function sliderChange(value){
+    buildingsref.scale.set(1,1,1+(value-2018)*0.2)
+}
 //
+

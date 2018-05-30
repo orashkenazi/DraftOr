@@ -9,19 +9,48 @@ body{
     overflow: hidden;
   }
  
+.openMenu{
+    padding-top:5px;
+    position:absolute; 
+    left:0; 
+    top:0;
+    z-index:+101; 
+    text-align:center;
+    width:20px;
+    height:100%;
+}
+
+.openMenu:hover{
+    background-color:rgba(220, 220, 220, 0.658);
+    color:rgb(83, 83, 83);
+}
+
 .userMenu-container{
     padding:25px;
-    margin:10px;
+    margin:0px;
     background-color: rgba(0, 0, 0, 0.85);
    
     color:rgb(207, 206, 206);
-    border: 0px solid rgba(126, 126, 126, 0.747);
+    border: 1px solid rgba(126, 126, 126, 0.747);
+    border-right:0px;
     position: absolute;
     z-index:+100;
-    right: 10%;
+    right: 0%;
     top:30%;
-    width:320px;
+    width:340px;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
 }
+
+.userMenu-container.off{
+    
+    right: -320px;
+}
+
+
+
+
 
 .userMenu-block{
     display:block;
@@ -38,6 +67,10 @@ body{
     padding-left:10px;
     display:block;
     margin-bottom:5px;
+}
+
+.userMenu-control input, .userMenu-control select{
+    font-size:12px; background-color:rgb(70, 70, 70); border:0;
 }
 
 .sd-container {
@@ -305,3 +338,84 @@ button:focus {outline:0;}
     background-color:rgb(81, 81, 161);
     border-color: rgb(81, 81, 161);
 }
+
+
+
+
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 15px;
+    vertical-align:middle;
+    margin-bottom:0px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {display:none;}
+  
+  /* The slider */
+  .switchslider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(70,70,70);
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .switchslider:before {
+    position: absolute;
+    content: "";
+    height: 10px;
+    width: 10px;
+    left: 3px;
+    bottom: 3px;
+    background-color: gainsboro;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .switchslider {
+    background-color: rgb(81, 81, 161);
+  }
+  
+  input:focus + .switchslider {
+    box-shadow: 0 0 1px rgb(81, 81, 161);
+  }
+  
+  input:checked + .switchslider:before {
+    -webkit-transform: translateX(15px);
+    -ms-transform: translateX(15x);
+    transform: translateX(15px);
+  }
+  
+  /* Rounded sliders */
+  .switchslider.round {
+    border-radius: 2px;
+  }
+  
+  .switchslider.round:before {
+    border-radius: 2px;
+  }
+
+
+  /* logo containers */
+
+  .logo-container{
+    display: inline-block;
+    background-color:white;
+    padding:0px;
+    margin-right:10px;
+    margin-top:10px;
+
+    box-shadow: 4px 4px 10px 2px rgb(0, 0, 0, 0.8);
+    /* in order: x offset, y offset, blur size, spread size, color */
+    /* blur size and spread size are optional (they default to 0) */
+    
+  }

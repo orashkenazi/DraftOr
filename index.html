@@ -11,24 +11,26 @@
         <!-- Latest compiled and minified CSS -->
        
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
 <link rel="stylesheet" href="./index.css">
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Quicksand">
+
+
 
 <!-- jQuery library -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
 <script src="./js/jscolor.js"></script>
 
 
 	</head>
 	<body onload="onLoadBody()">
 		
-        <button class="sd-control-button" data-toggle="collapse" data-target="#Controllers" style="position:absolute; z-index:+120; right:0px; color:transparent; border:0; width:15px;height:15px;">
+        <button class="sd-control-button" onclick="adminOn()" data-toggle="collapse" data-target="#Controllers" style="position:absolute; z-index:+120; right:0px; color:transparent; border:0; width:15px;height:15px;">
             +
         </button>
     
@@ -165,96 +167,6 @@
             
     </div>
 
-    <div id="ObjectController" class="or-card" style="display:block;">
-                    <button class="or-card-title" data-toggle="collapse" data-target="#content2">
-                               Object Control
-                        </button>
-                <div id="content2" class="collapse">
-
-                    <div class="or-card-content">
-                            <div class="form-group">
-                
-                            <label>Select object:</label>
-                            <select class="form-control" id="objectSelectList_old"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;">
-                            </select>
-                    </div>
-                    
-                            
-                    <div id="ObjectData">
-                            
-                        <div class="fields-container">
-                              
-                                
-                                        <div class="checkbox">
-                                                <label><input type="checkbox" value="" id="objectSelectable" >Selectable by click</label>
-                                            </div>
-                               
-                            </div>
-
-                        <label>Color:</label>
-                        <BR>
-                        <div class="fields-container">
-                            <div class="fieldname-container">
-                                red
-                            </div>
-                            <div class="field-container">
-                                    <input id="objectR" type="number" class="form-control">
-                            </div>
-                        </div>
-                            
-                        <div class="fields-container">
-                                <div class="fieldname-container">
-                                    green :
-                                </div>
-                                <div class="field-container">
-                                        <input id="objectG" type="number" class="form-control">
-                                </div>
-                        </div>
-            
-                        <div class="fields-container">
-                                <div class="fieldname-container">
-                                        blue: 
-                                </div>
-                                <div class="field-container">
-                                        <input id="objectB" type="number" class="form-control">
-                                </div>
-                        </div>
-            
-                        <label>Position:</label>
-                        <BR>
-                        <div class="fields-container">
-                            <div class="fieldname-container">
-                                x:
-                            </div>
-                            <div class="field-container">
-                                    <input id="objectX" type="number" class="form-control">
-                            </div>
-                        </div>
-                            
-                        <div class="fields-container">
-                                <div class="fieldname-container">
-                                    y:
-                                </div>
-                                <div class="field-container">
-                                        <input id="objectY" type="number" class="form-control">
-                                </div>
-                        </div>
-            
-                        <div class="fields-container">
-                                <div class="fieldname-container">
-                                        z: 
-                                </div>
-                                <div class="field-container">
-                                        <input id="objectZ" type="number" class="form-control">
-                                </div>
-                        </div>
-                    
-                            
-                            <BR>
-                                <button class="btn btn-primary btn-block" onclick="changeObjectData()" >Save Changes</button>
-                    </div>        
-                </div>
-        </div> 
 </div>
           
     
@@ -278,11 +190,11 @@
                         </div>
                         
                     <div class="sd-title">
-                        Hello title miaw mizi 0
+                        Zone 1
                     </div>
                     <div class="sd-content" style="height:100%">
                         <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
-                                                                                                
+                                                                                                slid
                                                                         grid-template-columns:60% auto;  grid-gap: 20px;">
                             <div  style="grid-area:content;">
                                         <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
@@ -291,7 +203,7 @@
                                         <BR><BR>
                                                                     </div>      
                             <div style="grid-area:img;">
-                            <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                            <img src="./images/zone1.PNG" style="width:100%; padding:3%;  border:1px solid rgba(169, 169, 169, 0.527);">
                             </div>
                             
                           
@@ -310,7 +222,7 @@
                                 </div>
                                 
                             <div class="sd-title">
-                                Hello title miaw mizi 1
+                                Zone 2
                             </div>
                             <div class="sd-content" style="height:100%">
                                 <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
@@ -323,7 +235,7 @@
                                                 <BR><BR>
                                                                             </div>      
                                     <div style="grid-area:img;">
-                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    <img src="./images/zone2.PNG" style="width:100%; padding:3%;  border:1px solid rgba(169, 169, 169, 0.527);">
                                     </div>
                                     
                                   
@@ -344,7 +256,7 @@
                                 </div>
                                 
                             <div class="sd-title">
-                                Piton
+                                Zone 3
                             </div>
                             <div class="sd-content" style="height:100%">
                                 <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
@@ -357,7 +269,7 @@
                                                 <BR><BR>
                                                                             </div>      
                                     <div style="grid-area:img;">
-                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    <img src="./images/zone3.PNG" style="width:100%; padding:3%;  border:1px solid rgba(169, 169, 169, 0.527);">
                                     </div>
                                     
                                   
@@ -378,7 +290,7 @@
                                 </div>
                                 
                             <div class="sd-title">
-                                Piton
+                                Main Street
                             </div>
                             <div class="sd-content" style="height:100%">
                                 <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
@@ -391,7 +303,7 @@
                                                 <BR><BR>
                                                                             </div>      
                                     <div style="grid-area:img;">
-                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    <img src="./images/mainstreet.PNG" style="width:100%; padding:3%;  border:1px solid rgba(169, 169, 169, 0.527);">
                                     </div>
                                     
                                   
@@ -412,7 +324,7 @@
                                 </div>
                                 
                             <div class="sd-title">
-                                Piton
+                                Piton des Neiges
                             </div>
                             <div class="sd-content" style="height:100%">
                                 <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
@@ -425,7 +337,7 @@
                                                 <BR><BR>
                                                                             </div>      
                                     <div style="grid-area:img;">
-                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
+                                    <img src="https://en.reunion.fr/sites/crt-reunion/files/styles/gallery_lightbox/public/content/images/montagne_piton_des_neiges02_-_credit_irt_-_serge_gelabert_dts_12_2014.jpg?itok=09I9Q6R3" style="width:100%; padding:0%;  border:1px solid rgba(169, 169, 169, 0.527);">
                                     </div>
                                     
                                   
@@ -440,63 +352,41 @@
                           
                 </div>
 
-                <div id="letsDesign5" class="sd-container" style="display:none;">
-                                <div class="sd-controls">
-                                                <button class="sd-control-button" onclick="document.getElementById('letsDesign5').style.display='none'">X</button>
-                                </div>
-                                
-                            <div class="sd-title">
-                                Piton
-                            </div>
-                            <div class="sd-content" style="height:100%">
-                                <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
-                                                                                                        
-                                                                                grid-template-columns:60% auto;  grid-gap: 20px;">
-                                    <div  style="grid-area:content;">
-                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
-                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
-                                                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
-                                                <BR><BR>
-                                                                            </div>      
-                                    <div style="grid-area:img;">
-                                    <img src="http://www.3dforegoer.com/img/slides/architecture/monochrome-model.png" style="width:100%; padding:10%;  border:1px solid rgba(169, 169, 169, 0.527);">
-                                    </div>
-                                    
-                                  
-                                </div>
+               
 
-                                <div class="sd-footer">
-                                                 <button class="sd-button">Click me!</button>
-                                </div>
-                                         
-                            </div>
-                            
-                          
-                </div>
-
-                <div id="smallMap" style="position:absolute; z-index:+200; bottom:0; right:0; width:200px; height:200px; background-color:white; margin:20px;  border: 1px solid gainsboro;" >
+                <div id="smallMap" style="position:absolute; z-index:+200; bottom:0; right:0; width:200px; height:200px; margin:20px;    border: 1px solid rgba(126, 126, 126, 0.747);" >
                         <img src="./reunionsat.jpg" style="width:100%; height:100%" onclick="onMiniMapClick(event)">
                         <span id="positionMark" class="glyphicon glyphicon-screenshot" style="color:white; position:absolute; top:-8px; left:-8px; z-index:201; font-size:16px;"></div>
                 </div>
 
-                <div id="userMenu" class="userMenu-container">
+                <div id="userMenu" class="userMenu-container off" >
+                        <div id="toggleMenuButton" class="openMenu" onclick="toggleMenu()">
+                                        <span id="menuArrow" class="glyphicon glyphicon-menu-left" ></span>
+                        </div>
+                        
                         <div class="userMenu-block">
                               <div class="userMenu-block-title">
                                      View Controls
                               </div>
 
                                 <div class="userMenu-control">
-                                                <input id="topView" type="checkbox" checked data-toggle="toggle" data-size="mini" data-style="ios">
-                                                <span>Top view </span>
+                                        <label class="switch">
+                                                        <input id="topView" type="checkbox" onchange="topView()" ><span class="switchslider round"></span>
+                                                     
+                                        </label>   <span>Top view </span>
+                                                
                                 </div>
 
                                 <div class="userMenu-control">
-                                                <input id="hideAirViewPicture" type="checkbox" checked data-toggle="toggle" data-size="mini"> <span>hide air view</span>
+                                                <label class="switch">
+                                                                <input id="hideAirMapPicture" type="checkbox" onchange="hideAirMap()"><span class="switchslider round"></span>
+                                                             
+                                                </label>   <span>Hide air map </span>
                                 </div>  
 
                                 <div class="userMenu-control">
                                                 <span>Year</span><BR>
-                                                        2018 <input type="range" min="1" max="100" value="50" class="slider" style="width:150px; display:inline-block"> 2040
+                                                        2018 <input type="range" min="2018" max="2040" value="50" class="slider" style="width:150px; display:inline-block" oninput="sliderChange(this.value)"> 2040
                                 </div>
                         </div>
                       <div>
@@ -504,15 +394,49 @@
                                                Object Controls
                                 </div>
                                 <div class="userMenu-control">
-                                        <span>Selected Object:</span> <select  style="width:140px; font-size:12px; background-color:rgb(70, 70, 70); border:0;"   id="objectSelectList"  onchange="changeSelectedObject();" onfocus="this.selectedIndex = -1;"></select>
+                                        <span>Selected Object:</span> <select  style="width:47%; position:absolute; left:45%;"   id="objectSelectList"  onchange="changeSelectedObject();"></select>
                                 </div>
 
-                                <div class="userMenu-control">
-                                                <input id="hideObject" type="checkbox" checked data-toggle="toggle" data-size="mini"> <span>hideobject</span> 
+                                <div id="objectData" style="display:none">
+                                                <div class="userMenu-control">
+                                                                <label class="switch">
+                                                                                <input id="hideObject" type="checkbox" onchange="changeObjectData()"><span class="switchslider round"></span>
+                                                                             
+                                                                </label>   <span>hide object </span>
+                                                </div>
+                                                <div class="userMenu-control">
+                                                                <span>Color:</span> <input id="colorInput" class="jscolor" value="ab2567" autocomplete="off" style="background-image: none; background-color: rgb(171, 37, 103); color: rgb(255, 255, 255); border:0; text-align:center; font-size:11px; width:55px; " onchange="changeObjectData();">
+                                                </div>
+                                                <div class="userMenu-control">
+                                                                <span>Position:</span><BR>
+                
+                                                                        <div class="userMenu-control">
+                                                                                        <span>x: </span><input type="number" id="objectX" style="width:47%; text-align:center; position:absolute; left:45%; display:inline-block;" onchange="changeObjectData();">
+                                                                        </div>
+                                                                        <div class="userMenu-control">
+                                                                                        <span>y: </span><input type="number" id="objectY" style="width:47%; text-align:center; position:absolute; left:45%; display:inline-block" onchange="changeObjectData();">
+                                                                        </div>
+                                                                        <div class="userMenu-control">
+                                                                                        <span>z: </span><input type="number" id="objectZ" style="width:47%; text-align:center; position:absolute; left:45%; display:inline-block" onchange="changeObjectData();">
+                                                                        </div>
+                                                                                
+                                                                                
+                                                                                
+                                                               
+                                                                      
+                                                </div>
+                                                <div id="adminControls" style="display:none;">
+                                                                <div class="userMenu-control" >
+                                                                                <label class="switch">
+                                                                                                <input id="objectSelectable" type="checkbox" onchange="changeObjectData()"><span class="switchslider round"></span>
+                                                                                             
+                                                                                </label>   <span>Selectable Object </span>
+                                                                </div>
+                                                </div>
                                 </div>
-                                <div class="userMenu-control">
-                                                <span>Color:</span> <input class="jscolor" value="ab2567" autocomplete="off" style="background-image: none; background-color: rgb(171, 37, 103); color: rgb(255, 255, 255); border:0; text-align:center; font-size:11px; width:55px;">
-                                </div>
+                               
+                              
+                                
                         
                                         
                       </div>
@@ -522,12 +446,33 @@
                 </div>
 
         
-                <div id="controls-on-top" style="position:absolute; top:0; width:100%; background-color: rgba(0, 0, 0, 0.801)">
-                        <img src="./images/prunel_baniere.jpg" style="width:800px; display: block;
-                        margin-left: auto;
-                        margin-right: auto;
-                        max-width: 60%;">
+                <div id="header" style="position:absolute; top:0; width:100%; background-color: rgba(0, 0, 0, 0.801); z-index:+100;">
+                        <div id="title" style="position:absolute; width:80%; display:inline-block;">
+                                
+                        </div>
+
+                        <div id="logos" style="display:inline-block; position:absolute; right:0%;">
+                                        <div class="logo-container">
+                                                        <img src="./images/saintdenis.png" style="height:80px;">
+                                        </div><div class="logo-container">
+                                                        <img src="./images/prunel.png" style="height:80px;" >
+                                        </div><div class="logo-container">
+                                                        <img src="./images/anru.png" style="height:80px;">
+                                        </div>
+                                       
+                                        
+                
+                        </div>
                 </div>
+
+                <div id="loading" class="sd-container" style="border:1px solid gray; width:300px; height:200px !important; min-height:0; left:40%; top:35%">
+                      <div class="sd-content" style="padding-top:40px;padding-left:25px;">
+                                <p style="font-size:20px">Loading... Please wait</p>
+                                
+                      </div>
+                </div>
+
+            
        
        
         <div id="assets" style="display:none;">
@@ -541,6 +486,8 @@
     <script src="js/OrbitControls.js"></script> <!-- added so user can rotate the scene with the mouse -->
     <script src="js/app.js"></script>
     <script>
-   (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+  // (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+
+
     </script>
 </html>
