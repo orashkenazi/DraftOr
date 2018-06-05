@@ -69,7 +69,7 @@ loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0
 
 loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:true});
 loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:true});
-loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Main Street',{offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-199,z:-10}, interactive:true, color:new THREE.Color( 0x30D97D)});
+loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
 
 
 
@@ -370,7 +370,16 @@ finish try code*/
   }
 
 
+  window.addEventListener( 'resize', onWindowResize, false );
 
+  function onWindowResize(){
+  
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+  
+      renderer.setSize( window.innerWidth, window.innerHeight );
+  
+  }
  
 
 
@@ -418,7 +427,7 @@ function initObjects(){
    interactiveObjects.push(cube2) */
 
 
-   var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+   var material = new THREE.MeshBasicMaterial( {color: 0x000000, side: THREE.DoubleSide} );
    var geo = new THREE.CubeGeometry (1,1,1    )
    var place = new THREE.Mesh( geo, material);
    place.name="Piton des Neiges";
@@ -930,14 +939,26 @@ function toScreenPosition(obj, camera){              //calc 2d coordinate of obj
 
     var widthHalf = 0.5*renderer.context.canvas.width;
     var heightHalf = 0.5*renderer.context.canvas.height;
-
-    obj.updateMatrixWorld();
-    vector.setFromMatrixPosition(obj.matrixWorld);
+   
+   // obj.updateMatrixWorld();
+   // vector.setFromMatrixPosition(obj.matrixWorld);
+   vector.x = + obj.position.x;
+   vector.y = + obj.position.y;
+   vector.z = + obj.position.z;
     vector.project(camera);
-
+    
+  
     vector.x = ( vector.x * widthHalf ) + widthHalf;
     vector.y = - ( vector.y * heightHalf ) + heightHalf;
 
+    
+    if(vector.z>1){
+      return {
+                x:-100,
+                y:-100
+    };
+    }
+    
     return { 
         x: vector.x,
         y: vector.y
@@ -946,14 +967,16 @@ function toScreenPosition(obj, camera){              //calc 2d coordinate of obj
 }
 
 function updateLabels(){
-
+    
     for( let i=0; i< interactiveObjects.length; i++){
 
         var proj = toScreenPosition(interactiveObjects[i], camera);
         
         document.getElementById("interactiveLabel"+i).style.left=proj.x+'px';
         document.getElementById("interactiveLabel"+i).style.top=proj.y+'px';
-       
+        if (i==1) {
+          
+        }
 
     }
 
@@ -963,9 +986,12 @@ function updateLabels(){
         
         document.getElementById("nonInteractiveLabel"+i).style.left=proj.x+'px';
         document.getElementById("nonInteractiveLabel"+i).style.top=proj.y+'px';
-       
+        
+     
 
     }
+
+   
    
 }
 
@@ -1048,7 +1074,7 @@ function loadInteractiveItem(id) {
                 document.getElementById('letsDesign2').style.display='block';
             }
     
-            if(interactiveObjects[id].name==="Main Street"){
+            if(interactiveObjects[id].name==="Rue Marechal Leclerc"){
                 document.getElementById('letsDesign3').style.display='block';
             }
     
@@ -1283,7 +1309,7 @@ function openInteractiveByClick(obj){
             document.getElementById('letsDesign2').style.display='block';
         }
 
-        if(obj.name==="Main Street"){
+        if(obj.name==="Rue Marechal Leclerc"){
             document.getElementById('letsDesign3').style.display='block';
         }
 
@@ -1297,5 +1323,7 @@ function openInteractiveByClick(obj){
 function sliderChange(value){
     buildingsref.scale.set(1,1,1+(value-2018)*0.2)
 }
+
+
 //
 

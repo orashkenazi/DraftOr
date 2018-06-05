@@ -194,8 +194,8 @@
                     </div>
                     <div class="sd-content" style="height:100%">
                         <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
-                                                                                                slid
-                                                                        grid-template-columns:60% auto;  grid-gap: 20px;">
+                                                                                              
+                                                                        grid-template-columns:60% auto;  grid-gap:20px;">
                             <div  style="grid-area:content;">
                                         <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
                                         <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p>
@@ -290,7 +290,7 @@
                                 </div>
                                 
                             <div class="sd-title">
-                                Main Street
+                                Rue Marechal Leclerc
                             </div>
                             <div class="sd-content" style="height:100%">
                                 <div style="display:grid; width:100%; height:100%; grid-template-areas:  'content  img';
@@ -354,9 +354,9 @@
 
                
 
-                <div id="smallMap" style="position:absolute; z-index:+200; bottom:0; right:0; width:200px; height:200px; margin:20px;    border: 1px solid rgba(126, 126, 126, 0.747);" >
+                <div id="smallMap" style="position:absolute; z-index:+50; bottom:0; right:0; width:200px; height:200px; margin:20px;    border: 1px solid rgba(126, 126, 126, 0.747);" >
                         <img src="./reunionsat.jpg" style="width:100%; height:100%" onclick="onMiniMapClick(event)">
-                        <span id="positionMark" class="glyphicon glyphicon-screenshot" style="color:white; position:absolute; top:-8px; left:-8px; z-index:201; font-size:16px;"></div>
+                        <span id="positionMark" class="glyphicon glyphicon-screenshot" style="color:white; position:absolute; top:-8px; left:-8px; z-index:51; font-size:16px;"></div>
                 </div>
 
                 <div id="userMenu" class="userMenu-container off" >
@@ -453,11 +453,11 @@
 
                         <div id="logos" style="display:inline-block; position:absolute; right:0%;">
                                         <div class="logo-container">
-                                                        <img src="./images/saintdenis.png" style="height:80px;">
+                                                        <img src="./images/saintdenis.png" style="height:110px; padding:10px; background-color:white;">
                                         </div><div class="logo-container">
-                                                        <img src="./images/prunel.png" style="height:80px;" >
+                                                        <img src="./images/prunel.png" style="height:110px; padding:10px; background-color:white;" >
                                         </div><div class="logo-container">
-                                                        <img src="./images/anru.png" style="height:80px;">
+                                                        <img src="./images/anru.png" style="height:110px; padding:10px; background-color:white;">
                                         </div>
                                        
                                         
@@ -479,6 +479,7 @@
             <img id="landscape-image" src="./reunion_small.png"/><canvas id="canvas1"></canvas>
                 <img id="sealevel-image" src="./sealevel300.png"/><canvas id="canvas2"></canvas>
         </div>
+        
     </body>
     <script src="js/three.js"></script>
 
