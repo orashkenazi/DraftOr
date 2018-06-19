@@ -114,7 +114,7 @@ body{
 .sd-footer{
     font-family:  'Quicksand', Arial;
     margin-top:15px;
-    margin-bottom:15px;
+    margin-bottom: 25px;
     position:absolute;
     bottom:0;
 
@@ -181,6 +181,22 @@ body{
 
 button:focus {outline:0;}
 select:focus {outline:0;}
+
+.photoLinkButton {
+    height:30px;
+    width:30px;
+    padding-left:8px;
+    padding-top:5px;
+    background-color: rgba(0, 0, 0, 0.75);
+    color:rgb(207, 206, 206);
+    border-radius:50%;
+}
+
+.photoLinkButton:hover {
+    background-color: rgb(207, 206, 206);
+    color:black;
+    border-radius:50%;
+}
 
 
 .or-card {

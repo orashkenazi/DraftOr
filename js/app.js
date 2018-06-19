@@ -50,6 +50,15 @@ var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 
 
+//photos
+let photos = [];
+let spherePhotos = [];
+
+photos.push({name:'photo1', position: new THREE.Vector3(100,100,0), url:'./images/pano.jpg'});
+spherePhotos.push({name:'sphere photo1', position: new THREE.Vector3(200,100,0), url:'./images/pano.jpg'});
+
+
+
 
 
 
@@ -78,8 +87,6 @@ loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: 
 loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:0,y:0,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:true});
 
 loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:true});
-
-
 
 
 
@@ -928,6 +935,41 @@ function createInteractiveGUI(){
     
         document.body.appendChild(labelparent);
     }
+
+    //photos:
+    for(let i=0; i< photos.length; i++){
+        var container = document.createElement("div");
+        container.id="photo_"+i;
+        container.style="position: absolute; top:10px: right:10px; z-index:3; cursor:pointer;"
+        container.classList.add("photoLinkButton")
+        container.addEventListener("click",function() {loadPhoto(i)},false)
+
+        var span = document.createElement("span");
+        span.classList.add("glyphicon");
+        span.classList.add("glyphicon-camera");
+        container.appendChild(span);
+
+        document.body.appendChild(container);
+    }
+
+    for(let i=0; i< spherePhotos.length; i++){
+        var container = document.createElement("div");
+        container.id="spherePhoto_"+i;
+        container.style="position: absolute; top:10px: right:10px; z-index:3; cursor:pointer;"
+        container.classList.add("photoLinkButton")
+        container.addEventListener("click",function() {loadSpherePhoto(i)},false)
+
+        var span = document.createElement("span");
+        span.classList.add("glyphicon");
+        span.classList.add("glyphicon-eye-open");
+        container.appendChild(span);
+        span.clic
+
+        document.body.appendChild(container);
+    }
+        
+       
+    
     
    
 }
@@ -991,6 +1033,28 @@ function updateLabels(){
 
     }
 
+    for( let i=0; i< photos.length; i++){
+
+        var proj = toScreenPosition(photos[i], camera);
+        
+        document.getElementById("photo_"+i).style.left=proj.x+'px';
+        document.getElementById("photo_"+i).style.top=proj.y+'px';
+        
+     
+
+    }
+
+    for( let i=0; i< spherePhotos.length; i++){
+
+        var proj = toScreenPosition(spherePhotos[i], camera);
+        
+        document.getElementById("spherePhoto_"+i).style.left=proj.x+'px';
+        document.getElementById("spherePhoto_"+i).style.top=proj.y+'px';
+        
+     
+
+    }
+
    
    
 }
@@ -1041,6 +1105,33 @@ function unhoverInteractiveItem(event,hovered){
    
 }
 
+function loadPhoto(i) {
+    document.getElementById("photo").style.display = 'block';
+    var img = document.getElementById("photo_img");
+    img.src =  photos[i].url;
+    console.log(img)
+    img.style.display = 'block';
+    document.getElementById("photo_viewer").style.display = 'none';
+
+    
+}
+
+function loadSpherePhoto(i) {
+    document.getElementById("photo").style.display = 'block';
+    document.getElementById("photo_img").style.display = 'none';
+    
+    var div = document.getElementById('photo_viewer');
+    div.style.display = 'block';
+    var PSV = new PhotoSphereViewer({
+            panorama: './images/pano.jpg',
+            container: div,
+            navbar: true,
+            navbar_style: {
+                backgroundColor: 'rgba(58, 67, 77, 0.7)'
+            },
+        });
+}
+
 
 function loadInteractiveItem(id) {
     
@@ -1054,6 +1145,7 @@ function loadInteractiveItem(id) {
     dy=camera.position.y-interactiveObjects[id].position.y;
     dl=Math.sqrt(dx*dx+dy*dy)
     console.log(dl)
+    
     
     flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
         setTimeout(()=>{ 

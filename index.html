@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="./index.css">
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Quicksand">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
 <!-- jQuery library -->
@@ -210,11 +210,11 @@
                         </div>
 
                         <div class="sd-footer">
-                                         <button class="sd-button">Click me!</button>
+                                         <button class="sd-button"> DOWNLOAD PDF &nbsp&nbsp<i class="fa fa-file-pdf-o" style="font-size:24px"></i></button>
                         </div>
                                  
                     </div>
-                </div>
+        </div>
         
                 <div id="letsDesign1" class="sd-container" style="display:none;">
                                 <div class="sd-controls">
@@ -242,7 +242,7 @@
                                 </div>
 
                                 <div class="sd-footer">
-                                                 <button class="sd-button">Click me!</button>
+                                        <button class="sd-button"> DOWNLOAD PDF &nbsp&nbsp<i class="fa fa-file-pdf-o" style="font-size:24px"></i></button>
                                 </div>
                                          
                             </div>
@@ -276,7 +276,7 @@
                                 </div>
 
                                 <div class="sd-footer">
-                                                 <button class="sd-button">Click me!</button>
+                                        <button class="sd-button"> DOWNLOAD PDF &nbsp&nbsp<i class="fa fa-file-pdf-o" style="font-size:24px"></i></button>
                                 </div>
                                          
                             </div>
@@ -310,7 +310,7 @@
                                 </div>
 
                                 <div class="sd-footer">
-                                                 <button class="sd-button">Click me!</button>
+                                        <button class="sd-button"> DOWNLOAD PDF &nbsp&nbsp<i class="fa fa-file-pdf-o" style="font-size:24px"></i></button>
                                 </div>
                                          
                             </div>
@@ -344,12 +344,27 @@
                                 </div>
 
                                 <div class="sd-footer">
-                                                 <button class="sd-button">Click me!</button>
+                                        <button class="sd-button">Click Me!</button>
                                 </div>
                                          
                             </div>
                             
                           
+                </div>
+
+                <div id="photo" class="sd-container" style="display:none; min-height:0%;">
+                        <div class="sd-controls">
+                                        <button class="sd-control-button" onclick="document.getElementById('photo').style.display='none'">X</button>
+                        </div>
+                        
+                   
+                    <div class="sd-content" style="height:100%">
+                        <BR>
+                        <img id="photo_img" src="" style="display:none; width:100%;";>
+
+                        <div id="photo_viewer" style="display:none; width:100%; height:400px;"></div>   
+                                 
+                    </div>
                 </div>
 
                
@@ -479,9 +494,13 @@
             <img id="landscape-image" src="./reunion_small.png"/><canvas id="canvas1"></canvas>
                 <img id="sealevel-image" src="./sealevel300.png"/><canvas id="canvas2"></canvas>
         </div>
+
+        
         
     </body>
     <script src="js/three.js"></script>
+    <script src="js/three.old.js"></script>
+    <script src="js/photo-sphere-viewer.min.js"></script>
 
     <script src="js/OBJLoader.js"></script>
     <script src="js/OrbitControls.js"></script> <!-- added so user can rotate the scene with the mouse -->
