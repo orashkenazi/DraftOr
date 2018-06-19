@@ -90,7 +90,143 @@ loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: 
 
 
 
+//for demo, adding particles
 
+var material = new THREE.LineBasicMaterial({color: 0x0000ff });
+		//First create the line that we want to animate the particles along
+		var geometry = new THREE.Geometry();
+		geometry.vertices.push(new THREE.Vector3(-1050, 487, 2.5));
+		geometry.vertices.push(new THREE.Vector3(-100, 15, 2.5));
+	
+	
+		var line1 = new THREE.Line(geometry, material);
+	    
+
+        var geometry = new THREE.Geometry();
+		geometry.vertices.push(new THREE.Vector3(-1048, 490, 2.5));
+		geometry.vertices.push(new THREE.Vector3(-98, 18, 2.5));
+	
+	
+		var line2 = new THREE.Line(geometry, material);
+        
+        
+        
+	
+	
+		//next create a set of about 30 animation points along the line
+        var linePoints1 = createLinePoints(line1.geometry.vertices[0], line1.geometry.vertices[1],500);
+        var linePoints2 = createLinePoints(line2.geometry.vertices[1], line2.geometry.vertices[0],500);
+        var particleGeometry1 = new THREE.Geometry();
+        var particleGeometry2 = new THREE.Geometry();
+		//add particles to scene
+		
+	
+			
+		//create particles
+		var numParticles = 25;
+		for(let i=0; i< numParticles; i++){
+			
+			let index = Math.floor(linePoints1.length*i/numParticles);
+			let particle = linePoints1[index];
+			particle.index = index;
+            particleGeometry1.vertices.push( particle );
+            
+
+            index = Math.floor(linePoints2.length*i/numParticles);
+			particle = linePoints2[index];
+			particle.index = index;
+			particleGeometry2.vertices.push( particle );
+		}
+			
+
+
+		//set particle material
+		var pMaterial1 = new THREE.ParticleBasicMaterial({
+			color: 0x00FF00,
+			size: 5,
+			blending: THREE.AdditiveBlending,
+			transparent: true
+        });
+        
+        var pMaterial2 = new THREE.ParticleBasicMaterial({
+			color: 0xFF0000,
+			size: 5,
+			blending: THREE.AdditiveBlending,
+			transparent: true
+		});
+	
+	
+        var particles1 = new THREE.ParticleSystem( particleGeometry1, pMaterial1 );
+        var particles2 = new THREE.ParticleSystem( particleGeometry2, pMaterial2 );
+
+        particles1.sortParticles = true;
+        particles2.sortParticles = true;
+        particles1.dynamic = true;
+        particles2.dynamic = true;
+        scene.add(particles1);
+        scene.add(particles2);
+	
+		function UpdateParticles(){
+
+			for(let n=0; n<particles1.geometry.vertices.length; n++){
+				let i;
+				let particle = particles1.geometry.vertices[n];
+				
+				if (particle.index >= linePoints1.length) {
+					
+					particle.index = 0;
+					particle = linePoints1[0];
+				}
+				else {	
+					
+					
+					let i=particle.index+1;
+					particle = linePoints1[particle.index];
+					particle.index = i;
+					
+					particles1.geometry.vertices[n] = particle;
+				
+				}
+				particles1.geometry.verticesNeedUpdate = true;
+                }
+                
+                for(let n=0; n<particles2.geometry.vertices.length; n++){
+                    let i;
+                    let particle = particles2.geometry.vertices[n];
+                    
+                    if (particle.index >= linePoints2.length) {
+                        
+                        particle.index = 0;
+                        particle = linePoints2[0];
+                    }
+                    else {	
+                        
+                        
+                        let i=particle.index+1;
+                        particle = linePoints2[particle.index];
+                        particle.index = i;
+                        
+                        particles2.geometry.vertices[n] = particle;
+                    
+                    }
+                    particles2.geometry.verticesNeedUpdate = true;
+                    }
+			
+		};
+	
+
+		
+		function createLinePoints(start,end,N){
+			let linePoints = [];
+			for (let i=0; i<N; i++){
+				let point = new THREE.Vector3();
+				point = start.clone().lerp(end,i/N)
+				linePoints.push(point);
+			}
+
+			return linePoints;
+			
+		}
 
 
 
@@ -791,7 +927,8 @@ function onMouseClick( event) {
 
 function render() {
  
-	
+    UpdateParticles();  
+    
     raycaster.setFromCamera( mouse, camera );
    
 	
@@ -845,6 +982,7 @@ function animate() {
     controls.update();
     render();
     updateLabels();
+    
     updatePositionMark(controls.target)
 }
 
