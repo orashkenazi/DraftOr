@@ -114,8 +114,8 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 	
 	
 		//next create a set of about 30 animation points along the line
-        var linePoints1 = createLinePoints(line1.geometry.vertices[0], line1.geometry.vertices[1],500);
-        var linePoints2 = createLinePoints(line2.geometry.vertices[1], line2.geometry.vertices[0],500);
+        var linePoints1 = createLinePoints(line1.geometry.vertices[0], line1.geometry.vertices[1],1000);
+        var linePoints2 = createLinePoints(line2.geometry.vertices[1], line2.geometry.vertices[0],1000);
         var particleGeometry1 = new THREE.Geometry();
         var particleGeometry2 = new THREE.Geometry();
 		//add particles to scene
@@ -142,15 +142,21 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 
 		//set particle material
 		var pMaterial1 = new THREE.ParticleBasicMaterial({
-			color: 0x00FF00,
-			size: 5,
+			color: 0xFF0000,
+            size: 15,
+            map: THREE.ImageUtils.loadTexture(
+                "./images/particle.png"
+              ),
 			blending: THREE.AdditiveBlending,
 			transparent: true
         });
         
         var pMaterial2 = new THREE.ParticleBasicMaterial({
 			color: 0xFF0000,
-			size: 5,
+            size: 15,
+            map: THREE.ImageUtils.loadTexture(
+                "./images/particle.png"
+              ),
 			blending: THREE.AdditiveBlending,
 			transparent: true
 		});
