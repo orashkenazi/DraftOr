@@ -527,6 +527,8 @@ finish try code*/
       camera.updateProjectionMatrix();
   
       renderer.setSize( window.innerWidth, window.innerHeight );
+      
+    if (activePage) activePage.onWindowResize();    
   
   }
  
@@ -783,8 +785,10 @@ function onLoadBody(){
     document.getElementById("cameraZ").value = camera.position.z;
     
     document.getElementById("lookatX").value = controls.target.x;
-   document.getElementById("lookatY").value = controls.target.y;
-  document.getElementById("lookatZ").value = controls.target.z;
+    document.getElementById("lookatY").value = controls.target.y;
+    document.getElementById("lookatZ").value = controls.target.z;
+
+
 
   
   
@@ -1017,7 +1021,7 @@ function convertCoordinates(lon2,lat2){
 
 
 function createInteractiveGUI(){
-    console.log("initializing Interactive buttons")
+    console.log("initializing Interactive buttons, labels, and pages")
     for(let i=0; i< interactiveObjects.length; i++){
         //menu items:
         var menu = document.getElementById("interactive-items-menu");
@@ -1033,12 +1037,11 @@ function createInteractiveGUI(){
         menu.appendChild(btn);
 
         //labels:
-
         
 
         var labelparent = document.createElement("div");
         labelparent.id="interactiveLabel"+i;
-        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3";
+        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3; pointer-events:none;";
 
         var label = document.createElement("div"); //creating tag
         label.id="label"+i;
@@ -1055,14 +1058,87 @@ function createInteractiveGUI(){
         labelparent.appendChild(line); 
 
         document.body.appendChild(labelparent);
+
+
+        //pages:
+
+        var obj = interactiveObjects[i];
+       
+
+        //creating container
+        var container = document.createElement("div");
+        container.id = "interactivePage_"+i;
+        container.classList.add("interactivePage-container");
+        //container.style="display:none";
+        document.body.appendChild(container);
+        
+        //creating controls
+        
+        var controls = document.createElement("div");
+        controls.classList.add("interactivePage-controls");
+        
+        container.appendChild(controls);
+       
+        var backBtn = document.createElement("button");
+        backBtn.classList.add('sd-control-button');
+        backBtn.addEventListener('click',function(){closeInteractivePageCanvas(i)},false);
+        backBtn.innerHTML = "X"
+        controls.appendChild(backBtn);
+
+        //creating header
+        var header = document.createElement("div");
+        header.classList.add("interactivePage-header");
+        header.innerHTML = obj.name;
+        container.appendChild(header);
+
+
+        //creating content
+        var content = document.createElement("div");
+        content.classList.add("interactivePage-content");
+        container.appendChild(content);
+
+        //creating grid to content
+        var grid = document.createElement("div");
+        grid.classList.add("interactivePage-content-grid");
+        content.appendChild(grid);
+
+        //creating text area
+        var text = document.createElement("div");
+        text.classList.add("interactivePage-content-text");
+        text.innerHTML = "I AM TEXT";
+        grid.appendChild(text);
+
+         //creating canvas area
+         var canvas = document.createElement("div");
+         canvas.id = "canvasarea_"+i;
+         canvas.classList.add("interactivePage-content-canvas");       
+         grid.appendChild(canvas);
+
+         
+         
+
+          //creating footer
+        var footer = document.createElement("div");
+        footer.classList.add("interactivePage-footer");
+       
+        var btn = document.createElement("button");
+        btn.innerHTML = "CLICK ME";
+        btn.classList.add("sd-button");
+        footer.appendChild(btn);
+        container.appendChild(footer)
     }
 
+    
+
+    
+
     //now just labels that are noninteratice:
+    console.log("initializing non-interactive labels");
     for(let i=0; i< nonInteractiveLabels.length; i++){
       
         var labelparent = document.createElement("div");
         labelparent.id="nonInteractiveLabel"+i;
-        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3";
+        labelparent.style="position: absolute; top:0px; left:0px;z-index:+3 ";
     
         var label = document.createElement("div"); //creating tag
         label.id="ni_label"+i;
@@ -1281,7 +1357,7 @@ function loadInteractiveItem(id) {
     
     for(let i=0; i < interactiveObjects.length; i++){
        
-        document.getElementById("letsDesign"+i).style.display="none";
+        document.getElementById("interactivePage_"+i).style.left="100%";
   
         
     }
@@ -1293,30 +1369,7 @@ function loadInteractiveItem(id) {
     
     flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
         setTimeout(()=>{ 
-            //correcT:
-            //document.getElementById("letsDesign"+id).style.display="block";
-
-            //just for demo:
-            console.log(interactiveObjects[id].name)
-            if(interactiveObjects[id].name==="Zone 1"){
-                document.getElementById('letsDesign0').style.display='block';
-            }
-    
-            if(interactiveObjects[id].name==="Zone 2"){
-                document.getElementById('letsDesign1').style.display='block';
-            }
-    
-            if(interactiveObjects[id].name==="Zone 3"){
-                document.getElementById('letsDesign2').style.display='block';
-            }
-    
-            if(interactiveObjects[id].name==="Rue Marechal Leclerc"){
-                document.getElementById('letsDesign3').style.display='block';
-            }
-    
-            if(interactiveObjects[id].name==="Piton des Neiges"){
-                document.getElementById('letsDesign4').style.display='block'; 
-            }
+            loadInteractivePageCanvas(id);
 
         },500)
       
