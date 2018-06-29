@@ -30,7 +30,7 @@ InteractivePage.prototype.init = function (){
     var width = canvasdiv.clientWidth;
     
 
-    this.camera = new THREE.PerspectiveCamera( 75, 1, 1, 70000 );
+    this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 70000 );
     
     this.raycaster = new THREE.Raycaster();
     
@@ -249,7 +249,7 @@ InteractivePage.prototype.init = function (){
     this.clippingCube.planeZUp.visible=false;
 
     //this.toggleClipMode();
-    
+    this.renderer.clippingPlanes = [] //cancel clipping for a second.
     
     
 
@@ -555,8 +555,17 @@ InteractivePage.prototype.animate = function(){
         // if there is animation of person;
         if (this.scene.userData.mixers) {
             if ( this.scene.userData.mixers.length > 0 ) {
+                var tick = this.scene.userData.clock.getDelta();
+                
                 for ( var i = 0; i < mixers.length; i ++ ) {
-                    mixers[ i ].update( this.scene.userData.clock.getDelta() );
+                    
+                    this.scene.userData.mixers[i].update( tick );
+                    
+                    this.scene.userData.mixers[i]._root.position.y+=-tick*1.3;
+
+                    if (this.scene.userData.mixers[i]._root.position.y <-30) {
+                        this.scene.userData.mixers[i]._root.position.y = 0;
+                    }
                 }
             }
         }

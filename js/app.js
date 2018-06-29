@@ -793,6 +793,117 @@ function onLoadBody(){
   
   
     
+    
+}
+
+
+function loadingOBJObjectWithMaterials(objPath,mtlPath,name,options){
+    console.log(mtlPath.substring(0, mtlPath.length-4))
+    new THREE.MTLLoader()
+                    
+                    .setTexturePath( mtlPath.substring(0, mtlPath.length-4) +'_Textures/')
+					.load( mtlPath, function ( materials ) {
+                        materials.preload();
+                        
+                        
+						new THREE.OBJLoader()
+							.setMaterials( materials )
+							.load( objPath , function ( object ) {
+
+                                addNewObject = function(object) {
+                                    //start
+                                    var newObject = object;
+                                    newObject.name = name;
+
+                                    
+                                                                    
+                                    scene.add(newObject)
+                                    //move to mathias zero point! : 55.45933228, -20.875329,  =~ -49,75
+                                    newObject.position.x=-49;
+                                    newObject.position.y=75;
+
+                                    //ading offset
+                                    
+                                    if(options.offset){
+                                                        
+                                        newObject.position.x += options.offset.x;
+                                        newObject.position.y += options.offset.y;
+                                        newObject.position.z += options.offset.z;
+                                    }
+
+                                    if(options.rotate){
+                                        newObject.rotateOnAxis(new THREE.Vector3( options.rotate.x,options.rotate.y,options.rotate.z),options.rotate.angle);
+                                    }
+
+                                    if (options.offsetChildren){
+                                        for (let index=0; index< newObject.children.length ; index ++){
+                                            newObject.children[index].position.set( options.offsetChildren.x,options.offsetChildren.y,options.offsetChildren.z ) ;
+                                        }
+                                        
+                                        newObject.position.x -= options.offsetChildren.x;
+                                        newObject.position.y -= options.offsetChildren.y;
+                                        newObject.position.z -= options.offsetChildren.z;
+                                    }
+
+                                    if (options.color) {
+                                        newObject.material.color = options.color;
+                                    }
+
+                                    if (options.interactive){
+                                        interactiveObjects.push(newObject)
+                                    }
+                                    
+                                    if (options.unselectable){
+                                        unselectableObjects.push(newObject);
+                                    }
+
+                                    if(options.transparent){
+                                        newObject.material.transparent=true;
+                                        newObject.material.opacity=0.5;
+                                    }
+
+                                    if (options.hidden!=true){
+                                        myObjects.push(newObject)  
+                                    }
+                                    
+
+
+                                    console.log(newObject)
+                                    
+                                    console.log('obj "' + newObject.name + '" has loaded')
+                                    
+                                    //finish
+                                }
+
+                                
+                                if( options.seperateChildren) {
+                                    var parentName = name;
+                                    for (let i=0; i< object.children.length; i++){
+                                    
+                                        name = parentName + "/" + object.children[i].name;
+                                        addNewObject(object.children[i])
+                                    }
+                                }
+                                else {
+                                        addNewObject(object);
+                                        
+                                }
+                               
+                                
+							},  // called when loading is in progresses
+                            function ( xhr ) {
+                    
+                                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+                    
+                            },
+                            // called when loading has errors
+                            function ( error ) {
+                    
+                                console.log( 'An error happened' );
+                    
+                            }
+                        );
+					} );
 }
 
 function loadingOBJObject(path,name,options){
