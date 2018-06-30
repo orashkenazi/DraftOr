@@ -332,6 +332,7 @@ button:focus {outline:0;}
   }
 
   .sd-labeltext{
+    pointer-events: all;
     background-color: rgba(0, 0, 0, 0.75);
     color:rgb(207, 206, 206);
     font-size: 10pt;
@@ -507,3 +508,66 @@ button:focus {outline:0;}
     /* blur size and spread size are optional (they default to 0) */
     
   }
+
+
+.poi-parent {
+    position:absolute;
+    z-index:1000; top:50%;
+    left:50%;
+    
+ 
+    }
+
+
+  
+  .poi-arrow{
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid rgb(42, 42, 75);
+    position:absolute;
+    top:-15px;
+    left: -10px;
+
+   
+  }
+  
+  .poi-label{
+    background-color:rgb(42, 42, 75);
+    color:rgb(42, 42, 75);
+      height:30px;
+      width:30px;
+      border-radius:15px;
+      position:absolute;
+      left:-15px;
+      top:-41px;
+      font-family:  'Quicksand', Arial;
+      padding: 5px 15px 5px 15px;
+      font-size:10pt;
+  }
+
+  .poi-label:hover{
+    background-color:rgb(42, 42, 75);
+    color: rgb(224, 224, 224);
+      height:30px;
+      width:auto;
+      border-radius:15px;
+      position:absolute;
+      -webkit-transition: .4s;
+      transition: .4s;
+      cursor:context-menu;
+  
+  }
+
+  .poi-arrow:hover ~ .poi-label {
+    background-color:rgb(42, 42, 75);
+    color: rgb(224, 224, 224);
+      height:30px;
+      width:auto;
+      border-radius:15px;
+      -webkit-transition-duration:0.4s; /* Safari */
+      transition-duration: 0.4s;
+      cursor:context-menu;
+  }
+  

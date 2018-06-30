@@ -57,7 +57,10 @@ let spherePhotos = [];
 photos.push({name:'photo1', position: new THREE.Vector3(100,100,0), url:'./images/pano.jpg'});
 spherePhotos.push({name:'sphere photo1', position: new THREE.Vector3(200,100,0), url:'./images/pano.jpg'});
 
+//pois:
 
+let poi = [];
+poi.push({label:'mizi123',position:new THREE.Vector3(200,200,0)})
 
 
 
@@ -239,9 +242,12 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 window.addEventListener( 'mousemove', onMouseMove, false );
 window.addEventListener( 'mousedown', onMouseClick, false );
 
+window.addEventListener('click',checkclickpath,false);
 
-
-
+function checkclickpath(){
+    
+    console.log(event.path)
+}
 
 function createImagePlane(){
      // instantiate a loader
@@ -1294,9 +1300,28 @@ function createInteractiveGUI(){
         span.classList.add("glyphicon");
         span.classList.add("glyphicon-eye-open");
         container.appendChild(span);
-        span.clic
+        
 
         document.body.appendChild(container);
+    }
+
+    for(let i=0; i< poi.length; i++){
+        var parent = document.createElement("div");
+        var label = document.createElement("div");
+        var arrow = document.createElement("div");
+        parent.classList.add("poi-parent");
+        label.classList.add("poi-label");
+        arrow.classList.add("poi-arrow");
+
+        parent.id = "poi_"+i;
+        label.id = "poi_label_"+i;
+        label.appendChild(document.createTextNode(poi[i].label))
+        parent.appendChild(arrow);
+        parent.appendChild(label);
+        
+        document.body.appendChild(parent)
+
+        
     }
         
        
@@ -1386,6 +1411,17 @@ function updateLabels(){
 
     }
 
+    for( let i=0; i< poi.length; i++){
+
+        var proj = toScreenPosition(spherePhotos[i], camera);
+        
+        document.getElementById("poi_"+i).style.left=proj.x+'px';
+        document.getElementById("poi_"+i).style.top=proj.y+'px';
+        
+     
+
+    }
+
    
    
 }
@@ -1393,6 +1429,7 @@ function updateLabels(){
 
 // for interactive items:
 function hoverInteractiveItem(event,hovered){
+    console.log('hovered')
     if (hovered === 'label'){
         
         event.target.classList.add('sd-labeltext-active');
