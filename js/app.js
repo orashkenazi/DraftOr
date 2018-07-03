@@ -60,7 +60,9 @@ spherePhotos.push({name:'sphere photo1', position: new THREE.Vector3(200,100,0),
 //pois:
 
 let poi = [];
-poi.push({label:'mizi123',position:new THREE.Vector3(200,200,0)})
+poi.push({label:'POI A',position:new THREE.Vector3(-490,60,25)})
+poi.push({label:'POI B',position:new THREE.Vector3(-370,-40,10)})
+poi.push({label:'POI C',position:new THREE.Vector3(-500,-13,25)})
 
 
 
@@ -242,12 +244,12 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 window.addEventListener( 'mousemove', onMouseMove, false );
 window.addEventListener( 'mousedown', onMouseClick, false );
 
-window.addEventListener('click',checkclickpath,false);
+//window.addEventListener('click',checkclickpath,false);
 
-function checkclickpath(){
+//function checkclickpath(){
     
-    console.log(event.path)
-}
+//    console.log(event.path)
+//}
 
 function createImagePlane(){
      // instantiate a loader
@@ -404,7 +406,7 @@ function addGround() {
 
     var numSegments = 299;
   
-    var geometry = new THREE.PlaneGeometry(74830, 80060, numSegments, numSegments); // now each threejs unit eqcual
+    var geometry = new THREE.PlaneGeometry(74830, 80060, numSegments, numSegments); 
     var material = new THREE.MeshPhongMaterial({
         color: 0x2df5f5,
         wireframe: true
@@ -424,32 +426,7 @@ function addGround() {
     // to check uncomment the next line, numbers should be equal
     console.log("length: " + terrain.length + ", vertices length: " + geometry.vertices.length);
 
-    /*rying buffer:
-    var bufferGeometry = new THREE.BufferGeometry();
-    
-   var vertices = [];
-    
-    for ( var i = 0, j = 0, l = vertices.length; i < terrain.length; i ++, j += 3 ) {
-        if(terrain[i] != 0){
-        
-        y=Math.floor(i/300)
-        x=(i - y*300);
 
-        var terrainValue = terrain[i] / 255;
-        vertices.push(x *74830 /300);
-        vertices.push(y* 80060/300);
-        vertices.push(terrainValue *3036 *1.5 );
-        }
-        
-    }
-    var buffervertices = new Float32Array();
-    var buffervertices = Float32Array.from(vertices)
-    console.log(buffervertices)
-    bufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( buffervertices, 3 ) );
-  
-   
-
-finish try code*/
    
 
     for (var i = 0, l = geometry.vertices.length; i < l; i++)
@@ -493,21 +470,7 @@ finish try code*/
     myObjects.push(plane)
     unselectableObjects.push(plane);
     altitudes =JSON.parse(JSON.stringify(plane.geometry.vertices));
-/*
-    plane2.position = new THREE.Vector3(0,0,0);
- 
-    var q = new THREE.Quaternion();
-    q.setFromAxisAngle( new THREE.Vector3(0,0,0), 90 * Math.PI / 180 );
-    plane2.quaternion.multiplyQuaternions( q, plane2.quaternion );
 
-    plane2.name="plane2";
-   
-    plane2.position.x=+74830/2 -29840;
-    plane2.position.y=-80060/2 +7210;
-    plane2.position.z=-30;
-    scene.add(plane2)
-    myObjects.push(plane2)
-    unselectableObjects.push(plane2);*/
 
     var geometry = new THREE.PlaneGeometry(90000, 90000,10,10);
     var material = new THREE.MeshBasicMaterial({
@@ -1275,9 +1238,12 @@ function createInteractiveGUI(){
 
     //photos:
     for(let i=0; i< photos.length; i++){
+
+        var parent = document.createElement("div");
+        parent.style="position: absolute; z-index:3; cursor:pointer;"
+        parent.id="photo_"+i;
+
         var container = document.createElement("div");
-        container.id="photo_"+i;
-        container.style="position: absolute; top:10px: right:10px; z-index:3; cursor:pointer;"
         container.classList.add("photoLinkButton")
         container.addEventListener("click",function() {loadPhoto(i)},false)
 
@@ -1285,14 +1251,16 @@ function createInteractiveGUI(){
         span.classList.add("glyphicon");
         span.classList.add("glyphicon-camera");
         container.appendChild(span);
-
-        document.body.appendChild(container);
+        parent.appendChild(container)
+        document.body.appendChild(parent);
     }
 
     for(let i=0; i< spherePhotos.length; i++){
+        var parent = document.createElement("div");
+        parent.style="position: absolute; z-index:3; cursor:pointer;"
+        parent.id="spherePhoto_"+i;
+
         var container = document.createElement("div");
-        container.id="spherePhoto_"+i;
-        container.style="position: absolute; top:10px: right:10px; z-index:3; cursor:pointer;"
         container.classList.add("photoLinkButton")
         container.addEventListener("click",function() {loadSpherePhoto(i)},false)
 
@@ -1301,8 +1269,9 @@ function createInteractiveGUI(){
         span.classList.add("glyphicon-eye-open");
         container.appendChild(span);
         
-
-        document.body.appendChild(container);
+        parent.appendChild(container)
+        
+        document.body.appendChild(parent);
     }
 
     for(let i=0; i< poi.length; i++){
@@ -1413,7 +1382,7 @@ function updateLabels(){
 
     for( let i=0; i< poi.length; i++){
 
-        var proj = toScreenPosition(spherePhotos[i], camera);
+        var proj = toScreenPosition(poi[i], camera);
         
         document.getElementById("poi_"+i).style.left=proj.x+'px';
         document.getElementById("poi_"+i).style.top=proj.y+'px';

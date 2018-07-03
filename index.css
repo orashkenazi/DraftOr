@@ -262,12 +262,15 @@ select:focus {outline:0;}
     background-color: rgba(0, 0, 0, 0.75);
     color:rgb(207, 206, 206);
     border-radius:50%;
+    position: relative;
+    left:-15px;
+    top:-15px;
 }
 
 .photoLinkButton:hover {
     background-color: rgb(207, 206, 206);
     color:black;
-    border-radius:50%;
+    
 }
 
 
@@ -512,11 +515,12 @@ button:focus {outline:0;}
 
 .poi-parent {
     position:absolute;
-    z-index:1000; top:50%;
-    left:50%;
+    
     
  
     }
+
+
 
 
   
@@ -529,34 +533,37 @@ button:focus {outline:0;}
     position:absolute;
     top:-15px;
     left: -10px;
+    z-index:2;
 
    
   }
   
   .poi-label{
     background-color:rgb(42, 42, 75);
-    color:rgb(42, 42, 75);
-      height:30px;
-      width:30px;
-      border-radius:15px;
-      position:absolute;
-      left:-15px;
-      top:-41px;
-      font-family:  'Quicksand', Arial;
-      padding: 5px 15px 5px 15px;
-      font-size:10pt;
+    color:transparent;
+    height:30px;
+    width:30px;
+    border-radius:15px;
+    position:absolute;
+    left:-15px;
+    top:-41px;
+    font-family:  'Quicksand', Arial;
+    padding: 5px 15px 5px 15px;
+    font-size:10pt;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index:2;
+    
   }
 
   .poi-label:hover{
     background-color:rgb(42, 42, 75);
     color: rgb(224, 224, 224);
-      height:30px;
-      width:auto;
-      border-radius:15px;
-      position:absolute;
-      -webkit-transition: .4s;
-      transition: .4s;
-      cursor:context-menu;
+    z-index:6;
+    width:auto;
+    
+  
+    cursor:context-menu;
   
   }
 
@@ -566,8 +573,8 @@ button:focus {outline:0;}
       height:30px;
       width:auto;
       border-radius:15px;
-      -webkit-transition-duration:0.4s; /* Safari */
-      transition-duration: 0.4s;
+     
       cursor:context-menu;
+      z-index:6;
   }
   
