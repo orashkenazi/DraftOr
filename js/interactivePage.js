@@ -44,7 +44,7 @@ InteractivePage.prototype.init = function (){
 
     if ( interactiveObjects[this.id].name === "Zone 3"){   //for demo..
         let img = document.createElement("img");
-        img.src="./images/zone3.png";
+        img.src="./images/zone3.PNG";
         img.style="width:100%; border: 1px solid rgba(169, 169, 169, 0.527);";
         
         canvasdiv.appendChild(img)
@@ -62,7 +62,7 @@ InteractivePage.prototype.init = function (){
 
     if ( interactiveObjects[this.id].name === "Rue Marechal Leclerc"){   //for demo..
         let img = document.createElement("img");
-        img.src="./images/mainstreet.png";
+        img.src="./images/mainstreet.PNG";
         img.style="width:100%; border: 1px solid rgba(169, 169, 169, 0.527);";
         canvasdiv.appendChild(img)
         this.renderer.domElement.classList.add('hidefordemo')
