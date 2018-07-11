@@ -78,20 +78,20 @@ createTerrainMaterial();
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:true, buildref:true});
+loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:0.6,color:new THREE.Color( 0xffffff)});
 //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
 
-loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:true});
-loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:true});
+loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
+loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
 loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:true})
+loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:0.5})
 
-loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:0,y:0,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:true});
+loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:0,y:0,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:0.5});
 
-loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:true});
+loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:0.5});
 
 
 
@@ -497,7 +497,7 @@ function addGround() {
   
       renderer.setSize( window.innerWidth, window.innerHeight );
       
-    if (activePage) activePage.onWindowResize();    
+     if (activePage) activePage.onWindowResize();    
   
   }
  
@@ -734,19 +734,58 @@ function changeObjectData(){
     
 }
 
-function testFunc(x,y,z){
+
+function createToolTip(){
+
+    let parent = document.createElement("div");
+    let circle = document.createElement("div")
+    let div = document.createElement("div");
+
     
   
+    parent.style.top= document.getElementById("menuArrow").getBoundingClientRect().y+'px';
+    parent.style.left= document.getElementById("menuArrow").getBoundingClientRect().x+'px';
+    parent.style.position = 'absolute';
+    parent.style.zIndex = '+200';
+    parent.style.pointerEvents = 'none';
+    parent.id="tooltipdiv";
+    document.body.appendChild(parent);
 
+    div.classList.add("tooltiptext");
+    div.innerHTML = 'Click here to open the controls menu...';
+    parent.appendChild(div);
+    
+    circle.classList.add("tooltipcircle");
+    parent.appendChild(circle)
+
+    
+    setTimeout(() => {
+        console.log('hiding tooltip')
+        parent.style.display = 'none';
+      
+    }, 5000);
+   
 }
 
 function onLoadBody(){
-    
+   
     console.log('onLoadBody is running')
     initObjects();
     setObjectsInSelectList(myObjects)
     createInteractiveGUI();
     document.getElementById("loading").style.display='none';
+
+
+    if(!(navigator.userAgent.indexOf('Chrome') > -1)){ //alret if no chrome!
+        console.log('its not chrome browser.')
+        let alertdiv = document.getElementById("loading");
+        alertdiv.style.display = 'inline-flex';
+        alertdiv.style.alignItems = 'center';
+        alertdiv.style.marginTop = '0px';
+        
+        alertdiv.innerHTML = '<div class="sd-content"><p style="font-size:18px; color:red"><B>Warning: browser is not Google Chrome. </B></p><p>This website is currently under development, and is intended to be viewed only by Google Chrome.</p></div>'
+    }
+
     animate();
     
     document.getElementById("cameraX").value = camera.position.x;
@@ -757,7 +796,7 @@ function onLoadBody(){
     document.getElementById("lookatY").value = controls.target.y;
     document.getElementById("lookatZ").value = controls.target.z;
 
-
+    createToolTip()
 
   
   
@@ -828,7 +867,8 @@ function loadingOBJObjectWithMaterials(objPath,mtlPath,name,options){
 
                                     if(options.transparent){
                                         newObject.material.transparent=true;
-                                        newObject.material.opacity=0.5;
+                                        
+                                        newObject.material.opacity=options.transparent;
                                     }
 
                                     if (options.hidden!=true){
@@ -940,7 +980,7 @@ function loadingOBJObject(path,name,options){
 
             if(options.transparent){
                 newObject.material.transparent=true;
-                newObject.material.opacity=0.5;
+                newObject.material.opacity=options.transparent;
             }
           
             if (options.hidden!=true){
@@ -1185,7 +1225,7 @@ function createInteractiveGUI(){
         //creating text area
         var text = document.createElement("div");
         text.classList.add("interactivePage-content-text");
-        text.innerHTML = "I AM TEXT";
+        text.innerHTML ='<div style="direction:ltr;"><p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p> <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eu lorem nec est convallis rhoncus quis a tortor. Praesent tristique lectus odio, non porta arcu accumsan eu. In vitae nunc massa. Donec dignissim accumsan fringilla. Donec gravida, leo eu molestie lobortis, lorem erat mattis nisl, eu scelerisque eros ipsum a erat. Morbi tincidunt ultricies ex, vel ultricies leo venenatis eu. Vestibulum accumsan, libero a dignissim egestas, leo nunc aliquam nisl, quis congue enim tortor at justo.</p> </div> ';
         grid.appendChild(text);
 
          //creating canvas area
@@ -1202,7 +1242,7 @@ function createInteractiveGUI(){
         footer.classList.add("interactivePage-footer");
        
         var btn = document.createElement("button");
-        btn.innerHTML = "CLICK ME";
+        btn.innerHTML = 'Télécharger PDF &nbsp&nbsp<i class="fa fa-file-pdf-o" style="font-size:24px"></i>';
         btn.classList.add("sd-button");
         footer.appendChild(btn);
         container.appendChild(footer)
@@ -1655,6 +1695,7 @@ function topView(){
 }
 
 function toggleMenu(){
+    document.getElementById("tooltipdiv").style.display = 'none';
     menu=document.getElementById("userMenu");
     arrow=document.getElementById('menuArrow');
     if (menu.classList.contains('off')){
@@ -1701,29 +1742,8 @@ function hoverLabelsFake(obj,hover){
 
 function openInteractiveByClick(obj){
     var index = interactiveObjects.indexOf(obj); // if -1, it doesnt exist..
-    
-    if (index != -1) {
-        if(obj.name==="Zone 1"){
-            document.getElementById('letsDesign0').style.display='block';
-        }
-
-        if(obj.name==="Zone 2"){
-            document.getElementById('letsDesign1').style.display='block';
-        }
-
-        if(obj.name==="Zone 3"){
-            document.getElementById('letsDesign2').style.display='block';
-        }
-
-        if(obj.name==="Rue Marechal Leclerc"){
-            document.getElementById('letsDesign3').style.display='block';
-        }
-
-        if(obj.name==="Piton des Neiges"){
-            document.getElementById('letsDesign4').style.display='block'; 
-        }
-        
-    }
+    loadInteractiveItem(index)
+   
 }
 
 function sliderChange(value){

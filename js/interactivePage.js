@@ -25,11 +25,12 @@ function InteractivePage(id,scene)  {
 
 InteractivePage.prototype.init = function (){
     
+    
     var canvasdiv = document.getElementById("canvasarea_"+this.id);
     
     var width = canvasdiv.clientWidth;
     
-
+    
     this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 70000 );
     
     this.raycaster = new THREE.Raycaster();
@@ -39,6 +40,34 @@ InteractivePage.prototype.init = function (){
     this.renderer.setSize( width, width);
     
     canvasdiv.appendChild( this.renderer.domElement );
+    this.renderer.domElement.style.border="1px solid rgba(169, 169, 169, 0.527)";
+
+    if ( interactiveObjects[this.id].name === "Zone 3"){   //for demo..
+        let img = document.createElement("img");
+        img.src="./images/zone3.png";
+        img.style="width:100%; border: 1px solid rgba(169, 169, 169, 0.527);";
+        
+        canvasdiv.appendChild(img)
+
+        this.renderer.domElement.classList.add('hidefordemo')
+    } 
+
+    if ( interactiveObjects[this.id].name === "Piton des Neiges"){   //for demo..
+        let img = document.createElement("img");
+        img.src="./images/piton.jpg";
+        img.style="width:100%; border: 1px solid rgba(169, 169, 169, 0.527);";
+        canvasdiv.appendChild(img)
+        this.renderer.domElement.classList.add('hidefordemo')
+    } 
+
+    if ( interactiveObjects[this.id].name === "Rue Marechal Leclerc"){   //for demo..
+        let img = document.createElement("img");
+        img.src="./images/mainstreet.png";
+        img.style="width:100%; border: 1px solid rgba(169, 169, 169, 0.527);";
+        canvasdiv.appendChild(img)
+        this.renderer.domElement.classList.add('hidefordemo')
+    } 
+
 
 
     // just creating an empty pictures array if doesnt exist:
@@ -595,8 +624,7 @@ InteractivePage.prototype.close = function(){
     var canvas = document.createElement("div");
     canvas.id = "canvasarea_"+this.id;
     canvas.classList.add("interactivePage-content-canvas");
-    console.log(canvas)
-    console.log(grid)
+    
     grid.appendChild(canvas);
     
     //removing clipping's stuff
@@ -743,14 +771,6 @@ function loadInteractivePageCanvas(id){
     console.log( scene)
            
     
-  
-  
-    
-    
-  
-   
-  
-  
   
     if (activePage) activePage.close();
    
