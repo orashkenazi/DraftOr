@@ -321,6 +321,45 @@
                         
                                         
                       </div>
+
+                      <div>
+                                <div class="userMenu-block-title">
+                                               Movie Controls
+                                </div>
+                                
+
+                                <div id="movieData" class="movieData">
+                                                <button enabled id="playButton" onclick="myMovie.playMovie();" class="movieControlButton" style="width: 100px; text-align:center;  display:inline-block;"><i class="fa fa-play" style="margin-right:3px"></i><span id="playMovieButtonText">Play Movie</span></button>
+                                                <div class="userMenu-control" id="pointsList">
+                                                        
+                                                </div>
+
+                                                <div class="userMenu-control">
+                                                                <span>Add new point: 
+                                                               </span><BR>
+                                                             
+                
+                                                                        <div class="userMenu-control" style="text-align: middle; vertical-align:middle;">
+                                                                                        <span style="display:inline-block;">time (seconds): </span><input type="number" id="newPointTime" style="margin-left:20px; width:80px; text-align:center;  display:inline-block;">
+                                                                                       <button onclick="myMovie.addPoint(new TimePoint(+document.getElementById('newPointTime').value,camera.position.clone(),controls.target.clone()));" class="movieControlButton" style="width:40px; margin-left:5px; text-align:center;  display:inline-block;"> Add</button>
+                                                                        </div>
+                                                                      
+                                                                                <span style="font-size:12px;"><i>* position and target will be recorded from current camera</i></span>
+                                                                                                                                                    
+                                                                                
+                                                                                
+                                                               
+                                                                      
+                                                </div>
+
+                                                
+                                </div>
+                               
+                              
+                                
+                        
+                                        
+                      </div>
                       
         
 
@@ -361,6 +400,7 @@
         <img id="sealevel-image" src="./sealevel300.png"/><canvas id="canvas2"></canvas>
         </div>
     
+     
         
         
     </body>

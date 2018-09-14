@@ -2,13 +2,14 @@
 var activePage = null;
 
 
-function InteractivePage(id,scene)  {
+function InteractivePage(id,scene,renderer)  {
+    
     this.id = id;
     this.interactivePageAnimation = null;
     this.scene = new THREE.Scene();
     
     if (scene) this.scene = scene;
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer =renderer;
     this.camera = null;
     this.controls = null;
     this.mouse = new THREE.Vector2(-2,-2)
@@ -35,13 +36,13 @@ InteractivePage.prototype.init = function (){
     
     this.raycaster = new THREE.Raycaster();
     
-    this.renderer.domElement.id = 'page_renderer';
+
     
     this.renderer.setSize( width, width);
     
     canvasdiv.appendChild( this.renderer.domElement );
     this.renderer.domElement.style.border="1px solid rgba(169, 169, 169, 0.527)";
-
+    this.renderer.domElement.classList.remove('hidefordemo') // for demo
     if ( interactiveObjects[this.id].name === "Zone 3"){   //for demo..
         let img = document.createElement("img");
         img.src="./images/zone3.PNG";
@@ -495,12 +496,12 @@ InteractivePage.prototype.onMouseMoveClip = function(event){
 
 InteractivePage.prototype.onMouseMove = function(event){
     
-      
+
 	// calculate mouse position in normalized device coordinates
 	// (-1 to +1) for both components
-   
-	this.mouse.x = ( event.layerX /( this.renderer.domElement.parentNode.clientWidth/1)  ) * 2 - 1;
-    this.mouse.y = - ( event.layerY / (this.renderer.domElement.parentNode.clientHeight/1) ) * 2 + 1;
+
+	this.mouse.x = ( event.layerX /( this.renderer.domElement.clientWidth/1)  ) * 2 - 1;
+    this.mouse.y = - ( event.layerY / (this.renderer.domElement.clientHeight/1) ) * 2 + 1;
   
 
 }
@@ -612,20 +613,25 @@ InteractivePage.prototype.animate = function(){
 
 
 InteractivePage.prototype.close = function(){
-    console.log(this.renderer.domElement.parentNode)
+    console.log('close runs for id=', this.id)
     cancelAnimationFrame(  this.interactivePageAnimation );
     
  
 
    
-    let grid=this.renderer.domElement.parentNode.parentNode;
-    this.renderer.domElement.parentNode.remove();
-    //this.renderer.domElement.remove();
+    let canvasdiv =  this.renderer.domElement.parentNode;
+    canvasdiv.removeChild(this.renderer.domElement);
+
+
+    let grid=canvasdiv.parentNode;
+    canvasdiv.remove();
+
     var canvas = document.createElement("div");
     canvas.id = "canvasarea_"+this.id;
     canvas.classList.add("interactivePage-content-canvas");
-    
+  
     grid.appendChild(canvas);
+
     
     //removing clipping's stuff
   
@@ -638,7 +644,8 @@ InteractivePage.prototype.close = function(){
     this.clippingCube.dispose();
 
     activePage=null;
-    //need actally to delete this instance..need to check how
+   
+    
     
     
  
@@ -755,27 +762,27 @@ function closeAllPages(){
     
 }
 
-function loadInteractivePageCanvas(id){
-
+function loadInteractivePageCanvas(id,renderer){
+    
     let scene = new THREE.Scene();
     scene.name = 'empty scene';
     scene.userData.zones = [];
     scene.userData.pictures = [];
     for (let i=0; i < childScenes.length; i++){
-        console.log(interactiveObjects[id].name,childScenes[i].name)
+       
         if (interactiveObjects[id].name === childScenes[i].name) {
             scene = childScenes[i];
         }
     }
 
-    console.log( scene)
+    console.log( 'loadingInteractivePageCanvas runs, loading scene:'+scene.name )
            
     
   
     if (activePage) activePage.close();
    
 
-    var newPage = new InteractivePage(id,scene);
+    var newPage = new InteractivePage(id,scene,renderer);
     document.getElementById('interactivePage_'+id).style.left="22%";
     newPage.createDOMElements();
     newPage.animate();

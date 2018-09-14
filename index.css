@@ -649,3 +649,76 @@ button:focus {outline:0;}
    height:50px;
    border-radius: 50%;
 }
+
+.pointsTable_table {
+    
+   
+    width:100%;
+
+}
+
+.pointsTable_th, .pointsTable_td  {
+  font-size:12px;
+  padding:3px;
+  border-bottom: 1px solid gray;
+
+}
+
+.pointsTable_tr {
+   
+}
+
+.movieControlButton{
+    
+    padding:0px 0px 0px 0px;  
+    height:18px;
+    width:18px;
+    font-size:10px;
+    background-color:transparent;
+    border: 1px solid gainsboro;
+    color:rgb(207, 206, 206);
+    text-align:middle;
+    vertical-align: middle;
+    -webkit-transition-duration: 0.4s; /* Safari */
+     transition-duration: 0.4s;
+}
+
+.movieControlButton:hover:enabled{
+    background-color: gainsboro;
+    color: rgb(61, 61, 61);
+}
+
+.movieControlButton:disabled{
+    border: 1px solid rgb(112, 112, 112);
+    color: rgb(112, 112, 112);
+}
+
+.movieData {
+   
+    overflow:scroll;
+    height:300px;
+    overflow-x: hidden;
+}
+/* width */
+.movieData::-webkit-scrollbar {
+    width: 6px;
+    position:relative;
+}
+
+/* Track */
+.movieData::-webkit-scrollbar-track {
+    background: rgb(39, 39, 39); 
+    
+ 
+}
+
+/* Handle */
+.movieData::-webkit-scrollbar-thumb {
+    background: #555; 
+   
+}
+
+/* Handle on hover */
+.movieData::-webkit-scrollbar-thumb:hover {
+    background: #888; 
+}

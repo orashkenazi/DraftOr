@@ -18,10 +18,16 @@ var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
 var theta=0, radius =100;
 
+
+
 var renderer = new THREE.WebGLRenderer();
 renderer.domElement.id = 'renderer';
 
 renderer.setSize( window.innerWidth, window.innerHeight);
+
+//defining renderer for interactivepages..
+let interactivePageRenderer = new THREE.WebGLRenderer();
+interactivePageRenderer.domElement.id = 'page_renderer';
 
 document.body.appendChild( renderer.domElement );
 
@@ -37,7 +43,7 @@ updatePositionMark(controls.target);
 controls.minPolarAngle=0.1*Math.PI/2;
 controls.maxPolarAngle=0.98*Math.PI/2;
 controls.autoRotateSpeed = 0.2 ;
-controls.autoRotate = true;
+controls.autoRotate = false;
 
 
 var inFlight = false; // determine if currently flying
@@ -58,11 +64,42 @@ photos.push({name:'photo1', position: new THREE.Vector3(100,100,0), url:'./image
 spherePhotos.push({name:'sphere photo1', position: new THREE.Vector3(200,100,0), url:'./images/pano.jpg'});
 
 //pois:
-
 let poi = [];
-poi.push({label:'POI A',position:new THREE.Vector3(-490,60,25)})
-poi.push({label:'POI B',position:new THREE.Vector3(-370,-40,10)})
-poi.push({label:'POI C',position:new THREE.Vector3(-500,-13,25)})
+// Set the global configs to synchronous 
+$.ajaxSetup({
+    async: false
+});
+$.getJSON("./data/voiep.json", function(result){
+   let features = result.features;
+    
+   for (let i=0; i<600;i++){
+        let position = {x:convertCoordinates( features[i].geometry.coordinates[0], features[i].geometry.coordinates[1]).x,y:convertCoordinates( features[i].geometry.coordinates[0], features[i].geometry.coordinates[1]).y}
+        if ((position.x < 1310)  && (position.x > -1286)  && (position.y > -917) ){
+            poi.push({
+                label:features[i].properties.TEX,
+                position: new THREE.Vector3(position.x,position.y ,5 ) 
+                })
+        }
+ 
+
+       
+    }
+
+    console.log(poi)
+   
+});
+
+// Set the global configs back to asynchronous 
+$.ajaxSetup({
+    async: true
+});
+
+
+
+
+//poi.push({label:'POI A',position:new THREE.Vector3(-490,60,25)})
+//poi.push({label:'POI B',position:new THREE.Vector3(-370,-40,10)})
+//poi.push({label:'POI C',position:new THREE.Vector3(-500,-13,25)})
 
 
 
@@ -78,7 +115,7 @@ createTerrainMaterial();
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:0.6,color:new THREE.Color( 0xffffff)});
+loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:0.5,color:new THREE.Color( 0xffffff)});
 //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
 
 loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
@@ -121,6 +158,7 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 		//next create a set of about 30 animation points along the line
         var linePoints1 = createLinePoints(line1.geometry.vertices[0], line1.geometry.vertices[1],1000);
         var linePoints2 = createLinePoints(line2.geometry.vertices[1], line2.geometry.vertices[0],1000);
+        
         var particleGeometry1 = new THREE.Geometry();
         var particleGeometry2 = new THREE.Geometry();
 		//add particles to scene
@@ -229,7 +267,7 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 		
 		function createLinePoints(start,end,N){
 			let linePoints = [];
-			for (let i=0; i<N; i++){
+			for (let i=0; i<=N; i++){
 				let point = new THREE.Vector3();
 				point = start.clone().lerp(end,i/N)
 				linePoints.push(point);
@@ -411,6 +449,8 @@ function addGround() {
         color: 0x2df5f5,
         wireframe: true
       });
+    
+      
 
 
 
@@ -783,7 +823,7 @@ function onLoadBody(){
         alertdiv.style.alignItems = 'center';
         alertdiv.style.marginTop = '0px';
         
-        alertdiv.innerHTML = '<div class="sd-content"><p style="font-size:18px; color:red"><B>Warning: browser is not Google Chrome. </B></p><p>This website is currently under development, and is intended to be viewed only by Google Chrome.</p></div>'
+        alertdiv.innerHTML = '<div class="sd-content"><p style="font-size:18px; color:red">Warning: browser is not Google Chrome. </p><p>This website is currently under development, and is intended to be viewed only by Google Chrome.</p></div>'
     }
 
     animate();
@@ -1526,7 +1566,7 @@ function loadInteractiveItem(id) {
     
     flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
         setTimeout(()=>{ 
-            loadInteractivePageCanvas(id);
+            loadInteractivePageCanvas(id,interactivePageRenderer);
 
         },500)
       
@@ -1752,4 +1792,185 @@ function sliderChange(value){
 
 
 //
+// movie code part:
+function TimePoint(time,position,target){
+    this.time = time;
+    this.position = position;
+    this.target = target;
+}
 
+
+
+function Movie(){
+    console.log('constr run')
+    this.timepoints =[];
+    this.lines = [];
+    this.timepoints = [new TimePoint(0,new THREE.Vector3(300,300,300),new THREE.Vector3(-650,-500,300)),new TimePoint(4,new THREE.Vector3(-315,126,13),new THREE.Vector3(-543,205,-66)),new TimePoint(8,new THREE.Vector3(-711,357,22),new THREE.Vector3(-703,292,18))];
+    this.createGui = function (){
+        let pointslistDiv = document.getElementById("pointsList");
+        let table = document.createElement("table");
+        table.classList.add("pointsTable_table")
+        let tablehead = document.createElement("tr");
+        tablehead.innerHTML = '<th class="pointsTable_th">Time</th><th class="pointsTable_th">Position</th><th  class="pointsTable_th">Target</th><th></th>';
+        table.appendChild(tablehead);
+        pointslistDiv.appendChild(table);
+    
+
+        for (let i=0; i<this.timepoints.length;i++){
+            let row = document.createElement("tr");
+            row.classList.add("pointsTable_tr")
+            let timetd = document.createElement("td");
+            timetd.classList.add("pointsTable_td");
+            let positiontd = document.createElement("td")
+        
+            positiontd.classList.add("pointsTable_td")
+            let targettd = document.createElement("td")
+            targettd.classList.add("pointsTable_td")
+
+            let pointcontrol = document.createElement("td");
+            pointcontrol.classList.add("pointsTable_td")
+
+            timetd.innerHTML = Math.floor(this.timepoints[i].time);
+            positiontd.innerHTML = '('+Math.floor(this.timepoints[i].position.x)+','+Math.floor(this.timepoints[i].position.y)+','+Math.floor(this.timepoints[i].position.z)+')';
+            targettd.innerHTML = '('+Math.floor(this.timepoints[i].target.x)+','+Math.floor(this.timepoints[i].target.y)+','+Math.floor(this.timepoints[i].target.z)+')';
+           
+
+            
+            let remove = document.createElement("button");
+            remove.innerHTML = "x";
+            remove.classList.add("movieControlButton")
+            let mov = this;
+            remove.onclick= () => {
+                mov.removePoint(i);
+            }
+            pointcontrol.appendChild(remove)
+
+             
+            row.appendChild(timetd);
+            row.appendChild(positiontd);
+            row.appendChild(targettd);
+            row.appendChild(pointcontrol);
+
+            table.appendChild(row)
+        }
+
+  
+       
+    };
+
+    this.removePoint = function(index) {
+        this.timepoints.splice(index,1)
+        this.refreshGui();
+        
+    }
+
+    this.addPoint = function(point) {
+        console.log(point.position.x)
+        for(let i=0; i< this.timepoints.length; i++){
+            if(point.time < this.timepoints[i].time) {
+                this.timepoints.splice(i,0,point);
+                console.log('point added at index='+i,point)
+                console.log('new points arrayist',this.timepoints)
+                this.refreshGui();
+                return;
+            }
+        }
+
+        this.timepoints.push(point); // will happend only if function didnt return on the for loop.. (if the time is bigger than all existing times)
+        console.log('point added as last point',point)
+        console.log('new points arrayist',this.timepoints)
+
+        this.refreshGui();
+        
+
+        
+    }
+
+    this.refreshGui = function() {
+        var myNode = document.getElementById("pointsList");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+        this.createGui();
+    }
+
+    this.playMovie = function(){
+        let timepoints = this.timepoints;
+        let lines = [];
+     
+        document.getElementById("playButton").disabled = true;
+        document.getElementById("playMovieButtonText").innerHTML='Playing...';
+
+        controls.minPolarAngle=0; //disable control limit
+        controls.maxPolarAngle=Math.PI;
+    
+        
+      
+        console.log(timepoints)
+        for (let j=0; j < timepoints.length-1; j++) {
+         
+            
+            let T = timepoints[j+1].time-timepoints[j].time;
+            let frames = Math.floor(T*50);
+    
+            lines.push({positions: createLinePoints(timepoints[j].position,timepoints[j+1].position,frames),targets: createLinePoints(timepoints[j].target,timepoints[j+1].target,frames)})     
+        }
+    
+        console.log(lines)
+        
+      
+        let t=0;
+        let dt=20
+        let i=0;
+        let j=0;
+        let ivl= setInterval(function(){ 
+            t=t+dt;
+            
+           // console.log('interval t=',t)
+            
+            camera.position.set(lines[j].positions[i].x,lines[j].positions[i].y,lines[j].positions[i].z)
+            camera.lookAt(lines[j].targets[i]);
+            controls.target=( lines[j].targets[i]);
+          //  console.log('Camera Position:'+camera.position.x +','+camera.position.y+','+camera.position.z,' Camera target:' +controls.target.x +','+controls.target.y+','+controls.target.z);
+            i++;
+            
+            if (i>=lines[j].targets.length-1) {
+                
+                console.log('moving to next segment')
+                j=j+1;
+                i=0;
+                
+            }
+    
+            if ((j==lines.length)) {
+                console.log('clearing interval')
+                
+                clearInterval(ivl);
+                controls.minPolarAngle=0.1*Math.PI/2;       //return control limit
+                controls.maxPolarAngle=0.98*Math.PI/2;
+                document.getElementById("playMovieButtonText").innerHTML='Play Movie';
+                document.getElementById("playButton").disabled = false; // enabling play button again
+            }
+        }, dt);
+
+        this.lines=lines;
+        
+        
+    
+    };
+}
+
+let myMovie = new Movie();
+myMovie.createGui();
+
+
+function testFunc(){
+    console.log(myMovie.timepoints);
+}
+
+
+
+
+
+
+//end movie code part
