@@ -1897,6 +1897,9 @@ function Movie(){
     this.playMovie = function(){
         let timepoints = this.timepoints;
         let lines = [];
+        if (timepoints.length< 2){
+            return;
+        }
      
         document.getElementById("playButton").disabled = true;
         document.getElementById("playMovieButtonText").innerHTML='Playing...';
