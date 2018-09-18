@@ -54,7 +54,7 @@ let interactiveObjects = [] //all objects that should be interactive (have label
 var hoverColor = new THREE.Color( 0x4C43D5 );
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
-
+let myMovie = new Movie(); //create the movie object
 
 //photos
 let photos = [];
@@ -813,6 +813,10 @@ function onLoadBody(){
     initObjects();
     setObjectsInSelectList(myObjects)
     createInteractiveGUI();
+
+    
+    myMovie.createGui();
+
     document.getElementById("loading").style.display='none';
 
 
@@ -1799,73 +1803,244 @@ function TimePoint(time,position,target){
     this.target = target;
 }
 
+function Subtitle(time,duration,text,x,y,height,width,fontSize){
+    this.time = time;
+    this.duration = duration;
+  
+    
+    let p=document.createElement("p");
+    p.innerHTML=text;
+    this.div = document.createElement("div");
+    this.div.appendChild(p);
+    this.div.classList.add("subtitle");
+    this.div.style.fontSize=fontSize+'pt';
+    this.div.style.position='absolute';
+    this.div.style.zIndex = '1000';
+    this.div.style.left = x+'%';
+    this.div.style.top = y+'%';
+    this.div.style.maxHeight=height+'%';
+    this.div.style.maxWidth=width+'%';
+    
+    document.body.appendChild(this.div);
+
+    
+
+    this.on = function() {
+        this.div.classList.add('on')
+    }
+
+    this.off = function() {
+       this.div.classList.remove('on');
+    }
+    
+}
+
+function ObjectEvent(time,object,property,value){
+    
+    this.time = time;
+    this.object = object;
+    this.property = property;
+    this.value = value;
+    this.startEvent = function(){
+        console.log('eventLunched for object :"'+this.object.name+'"')
+        if (this.property === 'color'){
+            console.log('changing color')
+            this.object.material.color = this.value;
+        }
+
+        if (this.property === 'opacity'){
+                console.log(this.object.material.transparent,this.object.material.opacity,this.object.visible)
+                this.object.material.transparent = true;
+                
+               
+                let oldOpacity = this.object.material.opacity;
+                let dO = (this.value - oldOpacity)/20;
+                
+                this.object.material.transparent = true;
+                
+                let valstep=0;
+                let that = this;
+                
+                let val = setInterval(()=>{
+                    
+                  this.object.material.opacity = this.object.material.opacity + dO;
+                  console.log(this.object.material.opacity)
+                  valstep++;
+                 
+                  
+
+                  if (valstep == 20) {
+                      console.log('finished changing opacity');
+                      this.object.material.opacity = Math.round((this.object.material.opacity)*100)/100;
+                      if(this.value == 1){
+                          this.object.material.transparent = false;      //turning of transperancy... no need if its opacity =1....
+                          this.object.visible = true;
+                    
+                      }
+
+                      if(this.value == 0){
+                        this.object.material.transparent = false;     //turning of transperancy... no need if its opacity =0....
+                        this.object.visible = false;     //turning of visibility... no need if its opacity =0....
+                    
+                    }
+
+                    console.log(this.object.material.transparent,this.object.material.opacity,this.object.visible)
+
+                      clearInterval(val);
+                  }
+                },50);
+            
+           
+           
+            this.object.visible = this.value;
+
+            
+        }
+    }
+}
+
 
 
 function Movie(){
-    console.log('constr run')
+    this.objectEvents = [];
     this.timepoints =[];
     this.lines = [];
-    this.timepoints = [new TimePoint(0,new THREE.Vector3(300,300,300),new THREE.Vector3(-650,-500,300)),new TimePoint(4,new THREE.Vector3(-315,126,13),new THREE.Vector3(-543,205,-66)),new TimePoint(8,new THREE.Vector3(-711,357,22),new THREE.Vector3(-703,292,18))];
+    this.timepoints = [];
+    this.subtitles = []
     this.createGui = function (){
-        let pointslistDiv = document.getElementById("pointsList");
-        let table = document.createElement("table");
-        table.classList.add("pointsTable_table")
-        let tablehead = document.createElement("tr");
-        tablehead.innerHTML = '<th class="pointsTable_th">Time</th><th class="pointsTable_th">Position</th><th  class="pointsTable_th">Target</th><th></th>';
-        table.appendChild(tablehead);
-        pointslistDiv.appendChild(table);
-    
 
-        for (let i=0; i<this.timepoints.length;i++){
-            let row = document.createElement("tr");
-            row.classList.add("pointsTable_tr")
-            let timetd = document.createElement("td");
-            timetd.classList.add("pointsTable_td");
-            let positiontd = document.createElement("td")
-        
-            positiontd.classList.add("pointsTable_td")
-            let targettd = document.createElement("td")
-            targettd.classList.add("pointsTable_td")
+        let  cameraTable = ()=>{
+            //camera points
+            let pointslistDiv = document.getElementById("pointsList");
+            let table = document.createElement("table");
+            table.classList.add("pointsTable_table")
+            let tablehead = document.createElement("tr");
+            tablehead.innerHTML = '<th class="pointsTable_th">Time</th><th class="pointsTable_th">Position</th><th  class="pointsTable_th">Target</th><th class="pointsTable_th"></th>';
+            table.appendChild(tablehead);
+            pointslistDiv.appendChild(table);
 
-            let pointcontrol = document.createElement("td");
-            pointcontrol.classList.add("pointsTable_td")
 
-            timetd.innerHTML = Math.floor(this.timepoints[i].time);
-            positiontd.innerHTML = '('+Math.floor(this.timepoints[i].position.x)+','+Math.floor(this.timepoints[i].position.y)+','+Math.floor(this.timepoints[i].position.z)+')';
-            targettd.innerHTML = '('+Math.floor(this.timepoints[i].target.x)+','+Math.floor(this.timepoints[i].target.y)+','+Math.floor(this.timepoints[i].target.z)+')';
-           
+            for (let i=0; i<this.timepoints.length;i++){
+                let row = document.createElement("tr");
+                row.classList.add("pointsTable_tr")
+                let timetd = document.createElement("td");
+                timetd.classList.add("pointsTable_td");
+                let positiontd = document.createElement("td")
 
+                positiontd.classList.add("pointsTable_td")
+                let targettd = document.createElement("td")
+                targettd.classList.add("pointsTable_td")
+
+                let pointcontrol = document.createElement("td");
+                pointcontrol.classList.add("pointsTable_td")
+
+                timetd.innerHTML = Math.floor(this.timepoints[i].time);
+                positiontd.innerHTML = '('+Math.floor(this.timepoints[i].position.x)+','+Math.floor(this.timepoints[i].position.y)+','+Math.floor(this.timepoints[i].position.z)+')';
+                targettd.innerHTML = '('+Math.floor(this.timepoints[i].target.x)+','+Math.floor(this.timepoints[i].target.y)+','+Math.floor(this.timepoints[i].target.z)+')';
             
-            let remove = document.createElement("button");
-            remove.innerHTML = "x";
-            remove.classList.add("movieControlButton")
-            let mov = this;
-            remove.onclick= () => {
-                mov.removePoint(i);
+
+                
+                let remove = document.createElement("button");
+                remove.innerHTML = "x";
+                remove.classList.add("movieControlButton")
+                
+                remove.onclick= () => {
+                    this.removePoint(i);
+                }
+                pointcontrol.appendChild(remove)
+
+                
+                row.appendChild(timetd);
+                row.appendChild(positiontd);
+                row.appendChild(targettd);
+                row.appendChild(pointcontrol);
+
+                table.appendChild(row)
             }
-            pointcontrol.appendChild(remove)
 
-             
-            row.appendChild(timetd);
-            row.appendChild(positiontd);
-            row.appendChild(targettd);
-            row.appendChild(pointcontrol);
-
-            table.appendChild(row)
         }
+        
+        
+        let objectEventsTable = ()=>{
+       
+            // object events
+            console.log('hello')
+
+            //selectbox:
+            let select = document.getElementById("objectSelectorForEvent");
+            
+            for(let i=0; i < myObjects.length; i++){
+                console.log(i)
+                let option = document.createElement("option");
+                option.value = myObjects[i];
+                option.innerHTML = myObjects[i].name;
+                select.appendChild(option);
+            }
+
+            //table:
+            
+            let pointslistDiv = document.getElementById("objectEventsList");
+            let table = document.createElement("table");
+            table.classList.add("pointsTable_table")
+            let tablehead = document.createElement("tr");
+            tablehead.innerHTML = '<th class="pointsTable_th">Time</th><th class="pointsTable_th">Object</th><th  class="pointsTable_th">Event</th><th class="pointsTable_th"></th>';
+            table.appendChild(tablehead);
+            pointslistDiv.appendChild(table);
+        
+    
+            for (let i=0; i<this.objectEvents.length;i++){
+                let row = document.createElement("tr");
+                row.classList.add("pointsTable_tr")
+                let timetd = document.createElement("td");
+                timetd.classList.add("pointsTable_td");
+                let positiontd = document.createElement("td")
+            
+                positiontd.classList.add("pointsTable_td")
+                let targettd = document.createElement("td")
+                targettd.classList.add("pointsTable_td")
+    
+                let pointcontrol = document.createElement("td");
+                pointcontrol.classList.add("pointsTable_td")
+    
+                timetd.innerHTML = Math.floor(this.objectEvents[i].time);
+                positiontd.innerHTML = this.objectEvents[i].object.name;
+                targettd.innerHTML = this.objectEvents[i].property+'('+this.objectEvents[i].value +')';
+                
+    
+                
+                let remove = document.createElement("button");
+                remove.innerHTML = "x";
+                remove.classList.add("movieControlButton")
+                
+                remove.onclick= () => {
+                    this.removeObjectEvent(i);
+                }
+                pointcontrol.appendChild(remove)
+    
+                
+                row.appendChild(timetd);
+                row.appendChild(positiontd);
+                row.appendChild(targettd);
+                row.appendChild(pointcontrol);
+    
+                table.appendChild(row)
+            }
+        }
+
+        cameraTable();
+        objectEventsTable();
+    
 
   
        
     };
 
-    this.removePoint = function(index) {
-        this.timepoints.splice(index,1)
-        this.refreshGui();
-        
-    }
+    
+
+ 
 
     this.addPoint = function(point) {
-        console.log(point.position.x)
+       
         for(let i=0; i< this.timepoints.length; i++){
             if(point.time < this.timepoints[i].time) {
                 this.timepoints.splice(i,0,point);
@@ -1878,11 +2053,68 @@ function Movie(){
 
         this.timepoints.push(point); // will happend only if function didnt return on the for loop.. (if the time is bigger than all existing times)
         console.log('point added as last point',point)
-        console.log('new points arrayist',this.timepoints)
+        
 
         this.refreshGui();
         
 
+        
+    }
+
+    this.removePoint = function(index) {
+        this.timepoints.splice(index,1)
+        this.refreshGui();
+        
+    }
+
+    this.addObjectEvent = function(event) {
+
+        for(let i=0; i< this.objectEvents.length; i++){
+            if(event.time < this.objectEvents[i].time) {
+                this.objectEvents.splice(i,0,event);
+                console.log('objectEvent added at index='+i,event)
+                
+                this.refreshGui();
+                return;
+            }
+        }
+
+        this.objectEvents.push(event); // will happend only if function didnt return on the for loop.. (if the time is bigger than all existing times)
+        console.log('objectEvent added as last event',event)
+        
+
+        this.refreshGui();
+
+    }
+
+    this.removeObjectEvent = function(index) {
+        this.objectEvents.splice(index,1)
+        this.refreshGui();
+        
+    }
+
+    this.addSubtitle = function (subtitle){
+        for(let i=0; i< this.subtitles.length; i++){
+            if(subtitle.time < this.subtitles[i].time) {
+                this.subtitles.splice(i,0,subtitle);
+                console.log('subtitle added at index='+i,subtitle)
+                
+                this.refreshGui();
+                return;
+            }
+        }
+
+        this.subtitles.push(subtitle); // will happend only if function didnt return on the for loop.. (if the time is bigger than all existing times)
+        console.log('subtitle added as last subtitle',subtitle)
+        
+
+        this.refreshGui();
+        
+    };
+
+    this.removeSubtitleEvent = function(index) {
+        this.subtitles.splice(index,1)
+        this.refreshGui();
         
     }
 
@@ -1891,10 +2123,22 @@ function Movie(){
         while (myNode.firstChild) {
             myNode.removeChild(myNode.firstChild);
         }
+
+        var myNode = document.getElementById("objectEventsList");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+
+        var myNode = document.getElementById("objectSelectorForEvent");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+
         this.createGui();
     }
 
     this.playMovie = function(){
+        let secPassed = 0;
         let timepoints = this.timepoints;
         let lines = [];
         if (timepoints.length< 2){
@@ -1914,23 +2158,67 @@ function Movie(){
          
             
             let T = timepoints[j+1].time-timepoints[j].time;
-            let frames = Math.floor(T*50);
+            let frames = Math.floor(T*25);
     
             lines.push({positions: createLinePoints(timepoints[j].position,timepoints[j+1].position,frames),targets: createLinePoints(timepoints[j].target,timepoints[j+1].target,frames)})     
         }
     
         console.log(lines)
         
-      
+        
         let t=0;
-        let dt=20
+        let dt=40
         let i=0;
         let j=0;
-        let ivl= setInterval(function(){ 
+        let i_oe = 0;
+        let i_s = 0;
+        let turnedOn = [];
+        let ivl= setInterval(() => { 
             t=t+dt;
+
+            //clock display
+            if((t/1000-secPassed)>1) {
+                secPassed++;
+                
+                document.getElementById("timeClock").innerHTML = Math.floor(secPassed/60)+':' + ( ((secPassed-60*Math.floor(secPassed/60))<10) ? '0':'') +  (secPassed-60*Math.floor(secPassed/60));
+            }
+         
+           //object events:
+          
+           
+           if (i_oe < this.objectEvents.length){
+            if(this.objectEvents[i_oe].time < t/1000){    //time had jussed passed the [i_oe] objectEvent timestep. we will now lunch the event, and move to our next event.
+              
+                this.objectEvents[i_oe].startEvent();
+                i_oe++;
+               }
+           }
+
+           //subtitles:
+          
+          
+          
+           if (i_s < this.subtitles.length){ 
+            if(this.subtitles[i_s].time < t/1000){    ///like above with objectevents.. only this time we will check also for the off...
+                console.log('turning on', this.subtitles[i_s])
+                this.subtitles[i_s].on();
+                turnedOn.push(this.subtitles[i_s]);
+                i_s++;
+               }
+           }
+           console.log(turnedOn)
+           for(let i_so=0; i_so < turnedOn.length; i_so++){
+               if (turnedOn[i_so].time + turnedOn[i_so].duration < t/1000) {
+                    console.log('turning off')
+                   turnedOn[i_so].off();
+                   turnedOn.splice(i_so,1)
+                   i_so=i_so-1;
+               }
+           }
+          
             
-           // console.log('interval t=',t)
-            
+           //camera changes:
+
             camera.position.set(lines[j].positions[i].x,lines[j].positions[i].y,lines[j].positions[i].z)
             camera.lookAt(lines[j].targets[i]);
             controls.target=( lines[j].targets[i]);
@@ -1953,6 +2241,7 @@ function Movie(){
                 controls.maxPolarAngle=0.98*Math.PI/2;
                 document.getElementById("playMovieButtonText").innerHTML='Play Movie';
                 document.getElementById("playButton").disabled = false; // enabling play button again
+                document.getElementById("timeClock").innerHTML = '';
             }
         }, dt);
 
@@ -1963,12 +2252,29 @@ function Movie(){
     };
 }
 
-let myMovie = new Movie();
-myMovie.createGui();
+function addObjectEventClicked() {
+    myMovie.addObjectEvent(new ObjectEvent(
+        +document.getElementById('newObjectEventTime').value,
+        myObjects[document.getElementById('objectSelectorForEvent').selectedIndex],
+        document.getElementById('newObjectEventProperty')[document.getElementById('newObjectEventProperty').selectedIndex].value,
+        +document.getElementById('newObjectEventValue').value
+    ))
+   
+}
 
+function addSubtitleClicked(){
+    
+}
+
+
+//end movie code part
 
 function testFunc(){
-    console.log(myMovie.timepoints);
+
+    myMovie.addSubtitle( new Subtitle(1,5,'miaw hey hey hey',20,40,30,30,20) )
+
+    myMovie.addSubtitle( new Subtitle(3,8,'miaw222',50,80,30,30,30) )
+    
 }
 
 
@@ -1976,4 +2282,3 @@ function testFunc(){
 
 
 
-//end movie code part

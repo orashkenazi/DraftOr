@@ -267,7 +267,7 @@
 
                                 <div class="userMenu-control">
                                                 <span>Year</span><BR>
-                                                        2018 <input type="range" min="2018" max="2040" value="50" class="slider" style="width:150px; display:inline-block" oninput="sliderChange(this.value)"> 2040
+                                                        2018 <input type="range" min="2018" max="2040" value="50" class="slider" style="width:150px; display:inline-block; height: 5px;" oninput="sliderChange(this.value)"> 2040
                                 </div>
                         </div>
                       <div>
@@ -329,7 +329,9 @@
                                 
 
                                 <div id="movieData" class="movieData">
-                                                <button enabled id="playButton" onclick="myMovie.playMovie();" class="movieControlButton" style="width: 100px; text-align:center;  display:inline-block;"><i class="fa fa-play" style="margin-right:3px"></i><span id="playMovieButtonText">Play Movie</span></button>
+                                                <button enabled id="playButton" onclick="myMovie.playMovie();" class="movieControlButton" style="width: 100px; text-align:center;  display:inline-block;"><i class="fa fa-play" style="margin-right:3px"></i><span id="playMovieButtonText">Play Movie</span></button> <span id="timeClock" style="font-size:12px"></span>
+                                                <BR><BR>
+                                                Camera time points:
                                                 <div class="userMenu-control" id="pointsList">
                                                         
                                                 </div>
@@ -339,7 +341,7 @@
                                                                </span><BR>
                                                              
                 
-                                                                        <div class="userMenu-control" style="text-align: middle; vertical-align:middle;">
+                                                                        <div class="userMenu-control" style="text-align: middle; vertical-align:middle; font-size:12px;">
                                                                                         <span style="display:inline-block;">time (seconds): </span><input type="number" id="newPointTime" style="margin-left:20px; width:80px; text-align:center;  display:inline-block;">
                                                                                        <button onclick="myMovie.addPoint(new TimePoint(+document.getElementById('newPointTime').value,camera.position.clone(),controls.target.clone()));" class="movieControlButton" style="width:40px; margin-left:5px; text-align:center;  display:inline-block;"> Add</button>
                                                                         </div>
@@ -351,6 +353,125 @@
                                                                
                                                                       
                                                 </div>
+                                                <BR><BR>
+                                                Object Events:
+
+                                                <div class="userMenu-control" id="objectEventsList">
+                                                        
+                                                </div>
+
+                                                <div class="userMenu-control">
+                                                        <span>Add new Object event: 
+                                                       </span><BR>
+                                                     
+        
+                                                                <div class="userMenu-control" style="text-align: middle; vertical-align:middle; font-size:12px;">
+                                                                                <div style="display:inline-block; width:100%; ">
+                                                                                <span style="float:left;">Object:</span><select id="objectSelectorForEvent" style="float:right;"></select>
+                                                                                </div>
+                                                                                <div style="display:inline-block; width:100%; ">
+                                                                                                <span style="float:left;">Time (seconds): </span>
+                                                                                                <input type="number" id="newObjectEventTime" style="float:right;  width:100px; text-align:center; " placeholder="Time (sec)">
+                                                                                </div><BR>
+                                                                                <div style="display:inline-block; width:100%; ">
+                                                                                                <span style="float:left;">Property </span>
+                                                                                                <select placeholder="Property" style="float:right;  width:100px;" id="newObjectEventProperty">
+                                                                                                        
+                                                                                                        <option value='opacity'>Opacity</option>
+                                                                                                </select>
+                                                                                                
+                                                                                </div>
+                                                                                <div style="display:inline-block; width:100%; ">
+
+                                                                                                <span style="float:left;">Value </span>
+                                                                                                <input type="number" id="newObjectEventValue" style="float:right; width:100px; text-align:center;  " placeholder="Value">
+                                                                                                
+                                                                                </div>
+                                                                                
+                                                                               
+                                                                                
+                                                                                <button onclick="addObjectEventClicked()" class="movieControlButton" style="width:100%; text-align:center;  display:block;"> Add Object Event</button>
+                                                                               
+                                                                </div>
+                                                                
+                                                                     
+                                                                                                                                            
+                                                                        
+                                                                        
+                                                       
+                                                              
+                                                </div>
+
+                                                <BR><BR>
+                                                        
+        
+                                                        <div class="userMenu-control" id="objectEventsList" >
+                                                                
+                                                        </div>
+        
+                                                        <div class="userMenu-control" style="background-color:rgba(34, 34, 34, 0.76); padding:10px;">
+                                                                <span>Add new subtitle: 
+                                                               </span><BR>
+                                                             
+                
+                                                                        <div class="userMenu-control" style="text-align: middle; vertical-align:middle; font-size:12px;">
+                                                                                        <div style="display:inline-block; width:100%; margin-bottom:5px;">
+                                                                                        <span style="float:left;">Text:</span>
+                                                                                        <BR>
+                                                                                        <textarea rows="4"  id="subtitleText" style="float:left; width:100%; font-style:italic;" >Enter Subtitle here</textarea>
+                                                                                        
+                                                                                        </div>
+
+                                                                                        <div style="display:inline-block; width:100%; ">
+                                                                                                        <span style="float:left;">Time (seconds): </span>
+                                                                                                        <input type="number" id="subtitleTime" style="float:right;  width:100px; text-align:center; " placeholder="Time (sec)">
+                                                                                        </div><BR>
+                                                                                        <div style="display:inline-block; width:100%; ">
+                                                                                                        <span style="float:left;">Top </span>
+                                                                                                        <input type="number" id="subtitleTop" style="float:right;  width:100px; text-align:center; " placeholder="Top (%)">
+                                                                                                        
+                                                                                        </div>
+                                                                                        <div style="display:inline-block; width:100%; ">
+        
+                                                                                                        <span style="float:left;">Left </span>
+                                                                                                        <input type="number" id="subtitleLeft" style="float:right;  width:100px; text-align:center; " placeholder="Left (%)">
+                                                                                                        
+                                                                                        </div>
+
+                                                                                        <div style="display:inline-block; width:100%; ">
+        
+                                                                                                        <span style="float:left;">Max width </span>
+                                                                                                        <input type="number" id="subtitleWidth" style="float:right;  width:100px; text-align:center; " placeholder="Left (%)">
+                                                                                                        
+                                                                                        </div>
+
+                                                                                        <div style="display:inline-block; width:100%; ">
+        
+                                                                                                        <span style="float:left;">Max height </span>
+                                                                                                        <input type="number" id="subtitleHeight" style="float:right;  width:100px; text-align:center; " placeholder="Left (%)">
+                                                                                                        
+                                                                                        </div>
+
+                                                                                        <div style="display:inline-block; width:100%; ">
+        
+                                                                                                        <span style="float:left;">Font size </span>
+                                                                                                        <input type="number" id="subtitleFontSize" style="float:right;  width:100px; text-align:center; " placeholder="Left (%)">
+                                                                                                        
+                                                                                        </div>
+                                                                                        
+                                                                                       
+                                                                                        
+                                                                                        <button onclick="addSubtitleClicked()" class="movieControlButton" style="width:100%; text-align:center;  display:block;"> Add Subtitle</button>
+                                                                                       
+                                                                        </div>
+                                                                        
+                                                                             
+                                                                                                                                                    
+                                                                                
+                                                                                
+                                                               
+                                                                      
+                                                        </div>
 
                                                 
                                 </div>
