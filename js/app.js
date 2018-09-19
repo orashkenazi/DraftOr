@@ -1804,8 +1804,10 @@ function TimePoint(time,position,target){
 }
 
 function Subtitle(time,duration,text,x,y,height,width,fontSize){
+    
     this.time = time;
     this.duration = duration;
+    this.text = text;
   
     
     let p=document.createElement("p");
@@ -1813,13 +1815,27 @@ function Subtitle(time,duration,text,x,y,height,width,fontSize){
     this.div = document.createElement("div");
     this.div.appendChild(p);
     this.div.classList.add("subtitle");
-    this.div.style.fontSize=fontSize+'pt';
+    
     this.div.style.position='absolute';
     this.div.style.zIndex = '1000';
+
     this.div.style.left = x+'%';
     this.div.style.top = y+'%';
-    this.div.style.maxHeight=height+'%';
-    this.div.style.maxWidth=width+'%';
+
+    if(height) {
+        this.div.style.minHeight=height+'%';
+        console.log('height')
+    }
+
+    if(width) {
+        this.div.style.width=width+'%';
+        console.log('width')
+    }
+    
+    if(fontSize){
+        this.div.style.fontSize=fontSize+'pt';
+    }
+  
     
     document.body.appendChild(this.div);
 
@@ -1934,7 +1950,7 @@ function Movie(){
                 let pointcontrol = document.createElement("td");
                 pointcontrol.classList.add("pointsTable_td")
 
-                timetd.innerHTML = Math.floor(this.timepoints[i].time);
+                timetd.innerHTML = this.timepoints[i].time;
                 positiontd.innerHTML = '('+Math.floor(this.timepoints[i].position.x)+','+Math.floor(this.timepoints[i].position.y)+','+Math.floor(this.timepoints[i].position.z)+')';
                 targettd.innerHTML = '('+Math.floor(this.timepoints[i].target.x)+','+Math.floor(this.timepoints[i].target.y)+','+Math.floor(this.timepoints[i].target.z)+')';
             
@@ -1964,7 +1980,7 @@ function Movie(){
         let objectEventsTable = ()=>{
        
             // object events
-            console.log('hello')
+            
 
             //selectbox:
             let select = document.getElementById("objectSelectorForEvent");
@@ -2002,7 +2018,7 @@ function Movie(){
                 let pointcontrol = document.createElement("td");
                 pointcontrol.classList.add("pointsTable_td")
     
-                timetd.innerHTML = Math.floor(this.objectEvents[i].time);
+                timetd.innerHTML = this.objectEvents[i].time;
                 positiontd.innerHTML = this.objectEvents[i].object.name;
                 targettd.innerHTML = this.objectEvents[i].property+'('+this.objectEvents[i].value +')';
                 
@@ -2027,9 +2043,61 @@ function Movie(){
             }
         }
 
+        let subtitlesTable = ()=>{
+       
+            //table:
+            
+            let pointslistDiv = document.getElementById("SubtitlesList");
+            let table = document.createElement("table");
+            table.classList.add("pointsTable_table")
+            let tablehead = document.createElement("tr");
+            tablehead.innerHTML = '<th class="pointsTable_th" style="width:50px;">Time</th><th class="pointsTable_th" style="width:50px;">Duration</th><th  class="pointsTable_th">Text</th><th class="pointsTable_th" style="width:30px;"></th>';
+            table.appendChild(tablehead);
+            pointslistDiv.appendChild(table);
+        
+    
+            for (let i=0; i<this.subtitles.length;i++){
+                let row = document.createElement("tr");
+                row.classList.add("pointsTable_tr")
+                let timetd = document.createElement("td");
+                timetd.classList.add("pointsTable_td");
+                let positiontd = document.createElement("td")
+            
+                positiontd.classList.add("pointsTable_td")
+                let targettd = document.createElement("td")
+                targettd.classList.add("pointsTable_td")
+    
+                let pointcontrol = document.createElement("td");
+                pointcontrol.classList.add("pointsTable_td")
+    
+                timetd.innerHTML = this.subtitles[i].time;
+                positiontd.innerHTML = this.subtitles[i].duration;
+                targettd.innerHTML = this.subtitles[i].text;
+                
+    
+                
+                let remove = document.createElement("button");
+                remove.innerHTML = "x";
+                remove.classList.add("movieControlButton")
+                
+                remove.onclick= () => {
+                    this.removeSubtitle(i);
+                }
+                pointcontrol.appendChild(remove)
+    
+                
+                row.appendChild(timetd);
+                row.appendChild(positiontd);
+                row.appendChild(targettd);
+                row.appendChild(pointcontrol);
+    
+                table.appendChild(row)
+            }
+        }
+        
         cameraTable();
         objectEventsTable();
-    
+        subtitlesTable();
 
   
        
@@ -2112,7 +2180,7 @@ function Movie(){
         
     };
 
-    this.removeSubtitleEvent = function(index) {
+    this.removeSubtitle = function(index) {
         this.subtitles.splice(index,1)
         this.refreshGui();
         
@@ -2134,6 +2202,11 @@ function Movie(){
             myNode.removeChild(myNode.firstChild);
         }
 
+        var myNode = document.getElementById("SubtitlesList");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+
         this.createGui();
     }
 
@@ -2147,6 +2220,8 @@ function Movie(){
      
         document.getElementById("playButton").disabled = true;
         document.getElementById("playMovieButtonText").innerHTML='Playing...';
+        document.getElementById("movieButtonMainScreen").hidden = true;
+
 
         controls.minPolarAngle=0; //disable control limit
         controls.maxPolarAngle=Math.PI;
@@ -2173,6 +2248,7 @@ function Movie(){
         let i_oe = 0;
         let i_s = 0;
         let turnedOn = [];
+        document.getElementById("timeClock").innerHTML = '00:00';
         let ivl= setInterval(() => { 
             t=t+dt;
 
@@ -2180,7 +2256,7 @@ function Movie(){
             if((t/1000-secPassed)>1) {
                 secPassed++;
                 
-                document.getElementById("timeClock").innerHTML = Math.floor(secPassed/60)+':' + ( ((secPassed-60*Math.floor(secPassed/60))<10) ? '0':'') +  (secPassed-60*Math.floor(secPassed/60));
+                document.getElementById("timeClock").innerHTML = secsToMMSS(secPassed);
             }
          
            //object events:
@@ -2206,7 +2282,7 @@ function Movie(){
                 i_s++;
                }
            }
-           console.log(turnedOn)
+           
            for(let i_so=0; i_so < turnedOn.length; i_so++){
                if (turnedOn[i_so].time + turnedOn[i_so].duration < t/1000) {
                     console.log('turning off')
@@ -2242,6 +2318,7 @@ function Movie(){
                 document.getElementById("playMovieButtonText").innerHTML='Play Movie';
                 document.getElementById("playButton").disabled = false; // enabling play button again
                 document.getElementById("timeClock").innerHTML = '';
+                document.getElementById("movieButtonMainScreen").hidden = false;
             }
         }, dt);
 
@@ -2263,17 +2340,68 @@ function addObjectEventClicked() {
 }
 
 function addSubtitleClicked(){
-    
+    myMovie.addSubtitle(new Subtitle(
+        +document.getElementById("subtitleTime").value,
+        +document.getElementById("subtitleDuration").value,
+        document.getElementById("subtitleText").value,
+        +document.getElementById("subtitleLeft").value,
+        +document.getElementById("subtitleTop").value,
+        +document.getElementById("subtitleHeight").value,
+        +document.getElementById("subtitleWidth").value,
+        +document.getElementById("subtitleFontSize").value
+        
+    ));
+
+    //clenaning form:
+    document.getElementById("subtitleTime").value = null;
+    document.getElementById("subtitleDuration").value  = null;
+    document.getElementById("subtitleText").value = null;
+    document.getElementById("subtitleLeft").value = null;
+    document.getElementById("subtitleTop").value = null;
+    document.getElementById("subtitleHeight").value = null;
+    document.getElementById("subtitleWidth").value = null;
+    document.getElementById("subtitleFontSize").value = null;
 }
 
+//time convertion to mm:ss
+function secsToMMSS(seconds){
+    return Math.floor(seconds/60)+':' + ( ((seconds-60*Math.floor(seconds/60))<10) ? '0':'') +  (seconds-60*Math.floor(seconds/60));
+}
+
+
+
+function previewSubtitle(){
+    let previewSub = new Subtitle(
+        +document.getElementById("subtitleTime").value,
+        +document.getElementById("subtitleDuration").value,
+        document.getElementById("subtitleText").value,
+        +document.getElementById("subtitleLeft").value,
+        +document.getElementById("subtitleTop").value,
+        +document.getElementById("subtitleHeight").value,
+        +document.getElementById("subtitleWidth").value,
+        +document.getElementById("subtitleFontSize").value
+        
+    );
+
+    previewSub.on();
+    setTimeout(() => {
+        previewSub.off();
+    }, previewSub.duration*1000);
+
+}
+
+function mainPlayMovieClicked(){
+    myMovie.playMovie();
+    
+    
+
+}
 
 //end movie code part
 
 function testFunc(){
 
-    myMovie.addSubtitle( new Subtitle(1,5,'miaw hey hey hey',20,40,30,30,20) )
-
-    myMovie.addSubtitle( new Subtitle(3,8,'miaw222',50,80,30,30,30) )
+   
     
 }
 
