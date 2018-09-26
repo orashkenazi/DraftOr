@@ -45,7 +45,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// Limits to how far you can dolly in and out
 	this.minDistance = 0;
-	this.maxDistance = Infinity;
+	this.maxDistance = 10000;
 
 	// Set to true to disable this control
 	this.noRotate = false;
@@ -61,7 +61,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// How far you can orbit vertically, upper and lower limits.
 	// Range is 0 to Math.PI radians.
-	this.minPolarAngle = -Math.PI;// radians
+	this.minPolarAngle = 0;// radians
 	this.maxPolarAngle = Math.PI ; // radians
 
 	// How far you can orbit horizontally, upper and lower limits.

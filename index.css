@@ -367,7 +367,14 @@ body{
     background-color: gainsboro !important;
     color: rgb(61, 61, 61);
 }
-
+.sd-control-button.active{
+    background-color: rgb(182, 182, 182,0.85) !important;
+    color:rgb(0, 0, 0);; 
+}
+.sd-control-button.active:hover{
+    background-color:gainsboro !important;
+    color: rgb(61, 61, 61);; 
+}
 button:focus {outline:0;}
 select:focus {outline:0;}
 
@@ -620,10 +627,10 @@ button:focus {outline:0;}
     display: inline-block;
     background-color:white;
     padding:0px;
-    margin-right:10px;
-    margin-top:10px;
+    margin-left:3px;
+    margin-top:0px;
 
-    box-shadow: 4px 4px 10px 2px rgb(0, 0, 0, 0.8);
+    /* box-shadow: 4px 4px 10px 2px rgb(0, 0, 0, 0.8); */
     /* in order: x offset, y offset, blur size, spread size, color */
     /* blur size and spread size are optional (they default to 0) */
     
@@ -794,4 +801,12 @@ button:focus {outline:0;}
 .subtitle.on{
     visibility: visible;
    opacity: 1;
+}
+
+.hideMe{
+    display:none;
+}
+
+*{
+    user-select: none;
 }

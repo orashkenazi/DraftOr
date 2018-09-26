@@ -12,18 +12,27 @@ var airpicref = null;
 var nonInteractiveLabels = [];
 var altitudes =[];  //help to calc altitude when clicking on minimap to know what altitude to fly to... (because mini map choose only x,y)
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 70000 );
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 100000000000 );
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
 var theta=0, radius =100;
-
+var directionalLight;
+let sky, sunSphere;
+let water;
+let airpictextures = [];
+let history_mode=0;
 
 
 var renderer = new THREE.WebGLRenderer();
 renderer.domElement.id = 'renderer';
 
 renderer.setSize( window.innerWidth, window.innerHeight);
+renderer.setPixelRatio( window.devicePixelRatio );
+
+
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
 //defining renderer for interactivepages..
 let interactivePageRenderer = new THREE.WebGLRenderer();
@@ -72,7 +81,7 @@ $.ajaxSetup({
 $.getJSON("./data/voiep.json", function(result){
    let features = result.features;
     
-   for (let i=0; i<600;i++){
+   for (let i=0; i<100;i++){
         let position = {x:convertCoordinates( features[i].geometry.coordinates[0], features[i].geometry.coordinates[1]).x,y:convertCoordinates( features[i].geometry.coordinates[0], features[i].geometry.coordinates[1]).y}
         if ((position.x < 1310)  && (position.x > -1286)  && (position.y > -917) ){
             poi.push({
@@ -105,7 +114,7 @@ $.ajaxSetup({
 
 
 
-addLights();
+
 
 createImagePlane();
 createTerrainMaterial();
@@ -115,18 +124,18 @@ createTerrainMaterial();
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:0.5,color:new THREE.Color( 0xffffff)});
+loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:1,color:new THREE.Color( 0xffffff)});
 //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
 
-loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
-loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
-loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
+loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
+loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{receiveShadow:false, offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
+loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{receiveShadow:false, offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
 
 
 
 loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:0.5})
 
-loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:0,y:0,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:0.5});
+loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:3,y:3,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:0.5});
 
 loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:0.5});
 
@@ -296,25 +305,31 @@ var loader = new THREE.TextureLoader();
 // load a resource
 loader.load(
 	// resource URL
-	'./images/version-def.jpg',
+	'./images/version-def-2.jpg',
 
 	// onLoad callback
 	function ( texture ) {
         texture.minFilter = THREE.LinearFilter;
 		// in this example we create the material when the texture is loaded
 		var material = new THREE.MeshBasicMaterial( {
-			map: texture
+            map: texture
+           
          } );
+         airpictextures.push(texture);
+         airpictextures.push(new THREE.TextureLoader().load( './images/version-def-histo.jpg'))
+         
          
          var geometry = new THREE.PlaneGeometry(6916*0.377,4790*0.377,1,1);
          var plane = new THREE.Mesh(geometry,material)
          plane.name = "plane with image";
+         plane.position.z = -1;
        
          //myObjects.push(plane);
          airpicref = plane;
          unselectableObjects.push(plane);
          scene.add(plane);
          console.log('Air Picture added')
+         myObjects.push(plane)
 
          setObjectsInSelectList(myObjects)
 
@@ -338,16 +353,19 @@ function createTerrainMaterial(){
     // load a resource
     loader.load(
         // resource URL
-        './reunionsat.jpg',
+        './reunion_sat_6000_2.jpg',
 
         // onLoad callback
-        function ( texture ) {
+        function ( satTexture ) {
             // in this example we create the material when the texture is loaded
             var material = new THREE.MeshBasicMaterial( {
-                map: texture
+                map: satTexture
+               
             } );
-            
+            console.log(material)
             imgmat = material;
+            
+            
             addGround();
         },
 
@@ -363,17 +381,203 @@ function createTerrainMaterial(){
 
 
 
+function addSkyAndWater(){
+    
+ 
 
-function addLights() {
-    var ambientLight = new THREE.AmbientLight(0x444444);
-    ambientLight.intensity = 0.0;
-    scene.add(ambientLight);
+    console.log('adding sky')
+
+    // Add Sky
+        sky = new THREE.Sky();
+        sky.scale.setScalar( 450000 );
+        
+       
+        scene.add( sky );
+        // Add Sun Helper
+        sunSphere = new THREE.Mesh(
+            new THREE.SphereBufferGeometry( 20000, 16, 8 ),
+            new THREE.MeshBasicMaterial( { color: 0xffffff } )
+        );
+        //sunSphere.position.z = + 700000;
+        sunSphere.visible = false;
+        scene.add( sunSphere );
+        sunSphere.name ="sun"
+        unselectableObjects.push(sunSphere);
+        myObjects.push(sunSphere)
+
+        /// GUI
+        var effectController  = {
+        turbidity: 10,
+        rayleigh: 2,
+        mieCoefficient: 0.005,
+        mieDirectionalG: 0.8,
+        luminance: 1,
+        inclination: 0.63, // elevation / inclination
+        azimuth: 0.2581, // Facing front,
+        sun: ! true
+    };
+
+    var distance = 40000000;
+    
+
+    //add light:
+
+    //"skylight"
+    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.2 );
    
-    var directionalLight = new THREE.DirectionalLight(0xffffff);
+    hemiLight.position.set( 0, 0, 500);
+    scene.add( hemiLight );
+
+    //"sunlight"
+
+   
+     directionalLight = new THREE.DirectionalLight(0xffffff);
    
     directionalLight.position.set(0, 4, 10).normalize();
+    directionalLight.position.set(-1500,0,1500)
+
+    directionalLight.castShadow = true;            // default false
     scene.add(directionalLight);
-   }
+
+    //Set up shadow properties for the light
+    directionalLight.shadow.mapSize.width = 2*1024;  // default
+    directionalLight.shadow.mapSize.height = 2*1024; // default
+    directionalLight.shadow.camera.near = -2000;    // default
+    directionalLight.shadow.camera.far = 1555;     // default
+
+    directionalLight.shadow.camera.left = 1000;
+    directionalLight.shadow.camera.right = -1000;
+    directionalLight.shadow.camera.top = 650;
+    directionalLight.shadow.camera.bottom = -600;
+
+
+    directionalLight.shadow.camera.bias = 0.0002;
+       
+
+    
+   
+
+    var planeGeometry = new THREE.PlaneGeometry( 1800, 1500 );
+
+
+    var planeMaterial = new THREE.ShadowMaterial();
+    planeMaterial.opacity = 0.9;
+
+    var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+    plane.position.z = 0.1;
+    plane.position.x = -200;
+    plane.receiveShadow = true;
+    scene.add( plane );
+    plane.name="shadow Plane"
+    unselectableObjects.push(plane);
+    myObjects.push(plane)
+
+
+    //Create a helper for the shadow camera (optional)
+    // helper = new THREE.CameraHelper( directionalLight.shadow.camera );
+    // scene.add( helper );
+    
+    //water:
+    var waterGeometry = new THREE.PlaneBufferGeometry( 748300, 800600 );
+    water = new THREE.Water(
+        waterGeometry,
+        {
+            textureWidth: 512,
+            textureHeight: 512,
+            landArea: new THREE.TextureLoader().load( './reunionsealevel_6000.png', function ( texture ) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }),
+            waterNormals: new THREE.TextureLoader().load( './js/textures/waternormals.jpg', function ( texture ) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }),
+            alpha: 1.0,
+            shiftX:-65.0,
+            shiftY:-770.0,
+            size:8,
+            sunDirection: sunSphere.position.clone().normalize(),
+            sunColor: 0xffffff,
+            height: 0.0,
+            waterColor: 0x000622    ,
+            distortionScale:  3.7,
+            fog: scene.fog !== undefined
+        }
+    );
+    water.position.x=+74830/2 -29840;
+    water.position.y=-80060/2 +7210;
+    
+    water.name="water";
+    unselectableObjects.push(water);
+    myObjects.push(water);
+    scene.add( water );
+
+    
+
+    var gui = new dat.GUI();
+    let skyfolder = gui.addFolder('Sky')
+    skyfolder.open();
+
+    skyfolder.add( effectController, "turbidity", 1.0, 20.0, 0.1 ).onChange( guiChanged );
+    skyfolder.add( effectController, "rayleigh", 0.0, 4, 0.001 ).onChange( guiChanged );
+    skyfolder.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( guiChanged );
+    skyfolder.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( guiChanged );
+    skyfolder.add( effectController, "luminance", 0.0, 2 ).onChange( guiChanged );
+    skyfolder.add( effectController, "inclination", 0, 1, 0.0001 ).onChange( guiChanged );
+    skyfolder.add( effectController, "azimuth", 0, 1, 0.0001 ).onChange( guiChanged );
+    skyfolder.add( effectController, "sun" ).onChange( guiChanged );
+
+
+    document.getElementById("Controllers").appendChild(gui.domElement)
+    
+
+    guiChanged();
+       
+    var uniforms = water.material.uniforms;
+    var folder = gui.addFolder( 'Water' );
+				folder.add( uniforms.distortionScale, 'value', 0, 8, 0.1 ).name( 'distortionScale' );
+				folder.add( uniforms.size, 'value', 0.1, 100, 0.1 ).name( 'size' );
+                folder.add( uniforms.alpha, 'value', 0.9, 1, .001 ).name( 'alpha' );
+                folder.add( uniforms.height, 'value', 0, 1, 0.01 ).name( 'height' );
+                folder.add( uniforms.shiftX, 'value', -1000, 1000, 1 ).name( 'shiftX' );
+                folder.add( uniforms.shiftY, 'value', -1000, 1000, 1 ).name( 'shiftY' );
+                folder.open();
+                
+     
+	function guiChanged() {
+        console.log(directionalLight.shadow.camera.far,directionalLight.shadow.bias)
+        var uniforms = sky.material.uniforms;
+        uniforms.turbidity.value = effectController.turbidity;
+        uniforms.rayleigh.value = effectController.rayleigh;
+        uniforms.luminance.value = effectController.luminance;
+        uniforms.mieCoefficient.value = effectController.mieCoefficient;
+        uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+        var theta = Math.PI * ( effectController.inclination - 0.5 );
+        var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
+        sunSphere.position.z = distance * Math.cos( theta );
+        sunSphere.position.x = distance * Math.sin( theta ) * Math.sin( phi );
+        sunSphere.position.y = distance * Math.sin( theta) * Math.cos( phi );
+        sunSphere.visible = effectController.sun;
+        uniforms.sunPosition.value.copy( sunSphere.position );
+        water.material.uniforms.sunDirection.value.copy( sunSphere.position ).normalize();
+        renderer.render( scene, camera );
+        directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
+
+    
+      
+    }
+
+}
+
+
+// function addLights() {
+//     var ambientLight = new THREE.AmbientLight(0x444444);
+//     ambientLight.intensity = 0.0;
+//     scene.add(ambientLight);
+   
+//     var directionalLight = new THREE.DirectionalLight(0xffffff);
+   
+//     directionalLight.position.set(0, 4, 10).normalize();
+//     scene.add(directionalLight);
+//    }
 
 
 function getTerrainPixelData(){
@@ -414,10 +618,16 @@ function getSeaLevelData(){
       // get the average value of R, G and B.
       normPixels.push((data[i] + data[i+1] + data[i+2]) / 3);
     }
-  
+    
     
     return normPixels;
   }
+
+
+  var wireMaterial = new THREE.MeshPhongMaterial({
+    color: 0x2df5f5,
+    wireframe: true
+  });
 
 function addGround() {
     //go to zero point => -29.84[km] in X, +7.21[km] in Y
@@ -445,10 +655,8 @@ function addGround() {
     var numSegments = 299;
   
     var geometry = new THREE.PlaneGeometry(74830, 80060, numSegments, numSegments); 
-    var material = new THREE.MeshPhongMaterial({
-        color: 0x2df5f5,
-        wireframe: true
-      });
+  
+      var material = imgmat;
     
       
 
@@ -472,10 +680,13 @@ function addGround() {
     for (var i = 0, l = geometry.vertices.length; i < l; i++)
     {   
         var terrainValue = terrain[i] / 255;
-        geometry.vertices[i].z = geometry.vertices[i].z + terrainValue *3036 *1.5 ;
+        if (terrainValue > 2/255) {                 // we let only height>2 pass... in order to keep it flat in first ~ 30meters.
+            geometry.vertices[i].z = geometry.vertices[i].z + (terrainValue *3036) *1.5 ;
+        }
+       
         
         if (sealevel[i] == 0){
-            geometry.vertices[i].z = -2000;
+           // geometry.vertices[i].z = -2000;
         }
       
         
@@ -503,7 +714,7 @@ function addGround() {
    
     plane.position.x=+74830/2 -29840;
     plane.position.y=-80060/2 +7210;
-    plane.position.z=-30;
+    plane.position.z=-15;
   
     scene.add(plane)
     
@@ -511,18 +722,6 @@ function addGround() {
     unselectableObjects.push(plane);
     altitudes =JSON.parse(JSON.stringify(plane.geometry.vertices));
 
-
-    var geometry = new THREE.PlaneGeometry(90000, 90000,10,10);
-    var material = new THREE.MeshBasicMaterial({
-        color: 0x000000
-    })
-   
-    var seaplane = new THREE.Mesh(geometry,material);
-    seaplane.position.x=+74830/2 -29840;
-    seaplane.position.y=-80060/2 +7210;
-    seaplane.position.z=-155;
-    unselectableObjects.push(seaplane);
-    scene.add(seaplane);
 
     
   }
@@ -811,6 +1010,7 @@ function onLoadBody(){
    
     console.log('onLoadBody is running')
     initObjects();
+    addSkyAndWater();
     setObjectsInSelectList(myObjects)
     createInteractiveGUI();
 
@@ -919,6 +1119,10 @@ function loadingOBJObjectWithMaterials(objPath,mtlPath,name,options){
                                         myObjects.push(newObject)  
                                     }
                                     
+                                    if (options.castShadow){
+                                        newObject.castShadow = true;
+
+                                    }
 
 
                                     console.log(newObject)
@@ -977,6 +1181,14 @@ function loadingOBJObject(path,name,options){
             for(let i=0; i < newObject.children.length; i++){
               
                 newObject.children[i].material = newObject.material;
+                if (options.castShadow){
+                    newObject.children[i].castShadow = true;
+    
+                }
+                if (options.receiveShadow){
+                    newObject.children[i].receiveShadow = true;
+    
+                }
             }
            
             newObject.name=name;
@@ -1037,7 +1249,17 @@ function loadingOBJObject(path,name,options){
             }
           
            
-            
+            if (options.castShadow){
+                newObject.castShadow = true;
+
+            }
+
+            if (options.receiveShadow){
+                newObject.receiveShadow = true;
+
+            }
+
+
             console.log(newObject)
             
            
@@ -1100,7 +1322,15 @@ function onMouseClick( event) {
 }
 
 function render() {
- 
+    //for water
+
+	var time = performance.now() * 0.001;
+				sphere.position.y = Math.sin( time ) * 20 + 5;
+				sphere.rotation.x = time * 0.5;
+				sphere.rotation.z = time * 0.51;
+				water.material.uniforms.time.value += 1.0 / 60.0;
+    //end water
+
     UpdateParticles();  
     
     raycaster.setFromCamera( mouse, camera );
@@ -1466,10 +1696,28 @@ function updateLabels(){
 
     for( let i=0; i< poi.length; i++){
 
-        var proj = toScreenPosition(poi[i], camera);
+        let x = camera.position.x;
+        let y = camera.position.y;
+        let z= camera.position.z;
         
-        document.getElementById("poi_"+i).style.left=proj.x+'px';
-        document.getElementById("poi_"+i).style.top=proj.y+'px';
+        //calc distance
+        let d = Math.sqrt((poi[i].position.x - x) * (poi[i].position.x - x) + (poi[i].position.y - y) * (poi[i].position.y - y) + (poi[i].position.z - z) * (poi[i].position.z - z));
+   
+        if(d < 800){
+            
+            var proj = toScreenPosition(poi[i], camera);
+            console.log(document.getElementById("poi_"+i).style.display)
+          
+            document.getElementById("poi_"+i).style.left=proj.x+'px';
+            document.getElementById("poi_"+i).style.top=proj.y+'px';
+            document.getElementById("poi_"+i).style.display='block';
+        }
+
+        else {
+            
+            document.getElementById("poi_"+i).style.display='none';
+
+        }
         
      
 
@@ -1702,6 +1950,39 @@ function adminOn(){
 
 function hideAirMap(){
     airpicref.visible = !document.getElementById("hideAirMapPicture").checked;
+}
+
+function toggleWireframeView(){
+    console.log(document.getElementById("wireframeView").checked)
+    if (document.getElementById("wireframeView").checked) {
+        console.log('wireframe on')
+       
+       scene.getObjectByName("terrain",true).material.wireframe = true;
+       water.visible = false;
+    }
+    
+    else {
+        console.log('wireframe off')
+        
+        scene.getObjectByName("terrain",true).material.wireframe = false;
+        water.visible = true;
+    }
+    
+}
+
+
+function historyMode(){
+    history_mode = 1- history_mode;
+    airpicref.material.map = airpictextures[history_mode];
+    if (history_mode==1) {
+        document.getElementById("historyModeButton").classList.add("active");
+    }
+
+    if (history_mode==0) {
+        document.getElementById("historyModeButton").classList.remove("active");
+    }
+
+    
 }
 
 function topView(){
@@ -2397,12 +2678,11 @@ function mainPlayMovieClicked(){
 
 }
 
+
 //end movie code part
 
 function testFunc(){
-
    
-    
 }
 
 
