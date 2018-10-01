@@ -251,7 +251,13 @@
                                 <div class="userMenu-block-title">
                                         View Controls
                                 </div>
-
+                                        <div class="userMenu-control">
+                                                <label class="switch">
+                                                                <input id="setRotation" type="checkbox" onchange="setRotation()"><span class="switchslider round"></span>
+                                                        
+                                                </label>   <span>Camera Rotation </span>
+                                                        
+                                        </div>
                                         <div class="userMenu-control">
                                                 <label class="switch">
                                                                 <input id="topView" type="checkbox" onchange="topView()" ><span class="switchslider round"></span>
@@ -535,7 +541,7 @@
                         </div>
                 </div>
 
-                <div id="loading" class="sd-container" style="border:1px solid gray; width:300px; height:200px !important; min-height:0; left:40%; top:35%">
+                <div id="loading" class="sd-container" style="display:none; border:1px solid gray; width:300px; height:200px !important; min-height:0; left:40%; top:35%">
                       <div class="sd-content" style="padding-top:40px;padding-left:25px;">
                                 <p style="font-size:20px">Loading... Please wait</p>
                                 
@@ -552,7 +558,35 @@
         </div>
     
      
+        <script type="x-shader/vertex-shader" id="vertexShader">
+                varying vec4 worldPosition;
+                
+                void main(){
+                        worldPosition = (modelMatrix * vec4( position, 1.0 )).xyzw;
+                        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+                        gl_Position = projectionMatrix * modelViewPosition;
+                }
+                
+
+        </script>
+        <script type="x-shader/fragment-shader" id="fragmentShader">
+                varying vec4 worldPosition;
+                uniform float loading;
+                void main(){
+
+                      
+
+                        if (worldPosition.z < (3500.0 * loading -  15.0)) {
+                                gl_FragColor = vec4(0.88, 0.88, 0.88, 1.0);
+                        }
+
+                        else {
+                                gl_FragColor = vec4(0.2 ,0.2 ,0.2 ,1.0 );
+                        }
+                      
+                }
         
+        </script>
         
     </body>
         <script src="js/three.js"></script>

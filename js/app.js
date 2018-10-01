@@ -13,7 +13,7 @@ var nonInteractiveLabels = [];
 var altitudes =[];  //help to calc altitude when clicking on minimap to know what altitude to fly to... (because mini map choose only x,y)
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 100000000000 );
-
+var labelsRaycaster = new THREE.Raycaster();
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
 var theta=0, radius =100;
@@ -22,6 +22,12 @@ let sky, sunSphere;
 let water;
 let airpictextures = [];
 let history_mode=0;
+let loadingFinished = false;
+let loadingPercentage = 0.0;
+let loadingScene = new THREE.Scene();
+
+let loading_events = [];
+
 
 
 var renderer = new THREE.WebGLRenderer();
@@ -64,6 +70,10 @@ var hoverColor = new THREE.Color( 0x4C43D5 );
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 let myMovie = new Movie(); //create the movie object
+
+//create wirematerial for loading
+let loadMaterial = null;
+
 
 //photos
 let photos = [];
@@ -116,28 +126,17 @@ $.ajaxSetup({
 
 
 
-createImagePlane();
+
 createTerrainMaterial();
 
 
 
+createImagePlane();
 
 
 
-loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:1,color:new THREE.Color( 0xffffff)});
-//loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
-
-loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
-loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{receiveShadow:false, offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
-loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{receiveShadow:false, offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
 
 
-
-loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:0.5})
-
-loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:3,y:3,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:0.5});
-
-loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:0.5});
 
 
 
@@ -353,7 +352,7 @@ function createTerrainMaterial(){
     // load a resource
     loader.load(
         // resource URL
-        './reunion_sat_6000_2.jpg',
+        './reunion_sat_6000_4.jpg',
 
         // onLoad callback
         function ( satTexture ) {
@@ -558,7 +557,7 @@ function addSkyAndWater(){
         sunSphere.visible = effectController.sun;
         uniforms.sunPosition.value.copy( sunSphere.position );
         water.material.uniforms.sunDirection.value.copy( sunSphere.position ).normalize();
-        renderer.render( scene, camera );
+       
         directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
 
     
@@ -624,10 +623,7 @@ function getSeaLevelData(){
   }
 
 
-  var wireMaterial = new THREE.MeshPhongMaterial({
-    color: 0x2df5f5,
-    wireframe: true
-  });
+
 
 function addGround() {
     //go to zero point => -29.84[km] in X, +7.21[km] in Y
@@ -717,11 +713,16 @@ function addGround() {
     plane.position.z=-15;
   
     scene.add(plane)
+   
+    
     
     myObjects.push(plane)
     unselectableObjects.push(plane);
     altitudes =JSON.parse(JSON.stringify(plane.geometry.vertices));
 
+    initLoadingScene()
+    loadObjects();
+    animate();
 
     
   }
@@ -740,50 +741,27 @@ function addGround() {
   
   }
  
-
+  function loadObjects() {
+    loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:1,color:new THREE.Color( 0xffffff)});
+    //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
+    
+    loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
+    loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{receiveShadow:false, offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
+    loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{receiveShadow:false, offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
+    
+    
+    
+    loadingOBJObject('./models/saint-denis/prunel_areashape_1.obj','Zone 1',{color: new THREE.Color(0xff0000), interactive:true,offset:{x:2,y:2,z:-3}, offsetChildren:{x:880,y:-485,z:-20},transparent:0.5})
+    
+    loadingOBJObject('./models/saint-denis/prunel_areashape_2.obj','Zone 2',{color: new THREE.Color(0x00ff00), interactive:true, offset:{x:3,y:3,z:-3}, offsetChildren:{x:189,y:-70,z:-25},transparent:0.5});
+    
+    loadingOBJObject('./models/saint-denis/prunel_areashape_3.obj','Zone 3',{color: new THREE.Color(0xFFDB03), interactive:true,offset:{x:0,y:0,z:-3}, offsetChildren:{x:359,y:495,z:-25},transparent:0.5});
+}
 
 
 
 function initObjects(){
-    // building some boxes!
-    /*
-   var material = new THREE.MeshPhongMaterial( {color: 0xff0000, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
-   var geo = new THREE.CubeGeometry (8,8,30)
-   var cube = new THREE.Mesh( geo, material);
-   cube.name="Zone 1";
-   cube.position.x =11;
-   cube.position.y =19;
-   cube.position.z = 15
-   cube.rotateZ(Math.PI/2.8)
-   scene.add(cube)
-   myObjects.push(cube)
-   interactiveObjects.push(cube)
-
-
-   var material = new THREE.MeshPhongMaterial( {color: 0x00ff00, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
-   var geo = new THREE.CubeGeometry (7,7,20)
-   var cube2 = new THREE.Mesh( geo, material);
-   cube2.name="Zone 2";
-   cube2.position.x =33;
-   cube2.position.y =-29;
-   cube2.position.z = 10
-   cube2.rotateZ(Math.PI/2.8)
-   scene.add(cube2)
-   myObjects.push(cube2)
-   interactiveObjects.push(cube2)
-
-   
-   var material = new THREE.MeshPhongMaterial( {color: 0x00ff00, side: THREE.DoubleSide, transparent:true, opacity:0.5} );
-   var geo = new THREE.CubeGeometry (100,100,60)
-   var cube2 = new THREE.Mesh( geo, material);
-   cube2.name="Zone 3";
-   cube2.position.x =330;
-   cube2.position.y =-29;
-   cube2.position.z = 10
-   cube2.rotateZ(Math.PI/2.8)
-   scene.add(cube2)
-   myObjects.push(cube2)
-   interactiveObjects.push(cube2) */
+ 
 
 
    var material = new THREE.MeshBasicMaterial( {color: 0x000000, side: THREE.DoubleSide} );
@@ -1009,14 +987,16 @@ function createToolTip(){
 function onLoadBody(){
    
     console.log('onLoadBody is running')
+    
     initObjects();
     addSkyAndWater();
     setObjectsInSelectList(myObjects)
     createInteractiveGUI();
-
+    setRotation();
     
     myMovie.createGui();
 
+    console.log('turning off loading div')
     document.getElementById("loading").style.display='none';
 
 
@@ -1030,7 +1010,7 @@ function onLoadBody(){
         alertdiv.innerHTML = '<div class="sd-content"><p style="font-size:18px; color:red">Warning: browser is not Google Chrome. </p><p>This website is currently under development, and is intended to be viewed only by Google Chrome.</p></div>'
     }
 
-    animate();
+    
     
     document.getElementById("cameraX").value = camera.position.x;
     document.getElementById("cameraY").value = camera.position.y;
@@ -1149,7 +1129,9 @@ function loadingOBJObjectWithMaterials(objPath,mtlPath,name,options){
                                 
 							},  // called when loading is in progresses
                             function ( xhr ) {
-                    
+                           
+                            
+                                
                                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
                     
                             },
@@ -1261,7 +1243,7 @@ function loadingOBJObject(path,name,options){
 
 
             console.log(newObject)
-            
+          
            
             
             
@@ -1270,8 +1252,36 @@ function loadingOBJObject(path,name,options){
         },
         // called when loading is in progresses
         function ( xhr ) {
+            
+            if (loading_events.length == 0 ) {
+                console.log('pushed first event ' +  xhr.srcElement.responseURL)
+                loading_events.push(xhr)
+            }
 
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            let pushMe = true;
+
+            for (let j=0; j<loading_events.length; j++){
+               
+                if(loading_events[j].srcElement.responseURL === xhr.srcElement.responseURL){
+                    pushMe = false;
+                    loading_events.splice(j,1,xhr)
+                    j = loading_events.length;
+                    
+                }
+
+                
+            }
+
+            if(pushMe) {
+                loading_events.push(xhr);
+                console.log('pushed another event'+  xhr.srcElement.responseURL)
+            }
+
+         
+            console.log(loading_events)
+            calculateLoading();
+      
+            
 
         },
         // called when loading has errors
@@ -1310,8 +1320,9 @@ function onMouseClick( event) {
         {
            selectedObjectIndex = myObjects.indexOf(intersects[0].object);
            
+           
            intersects[0].object.material.color = lastColor;
-          
+        
            changeSelectedObjectByClick();
            openInteractiveByClick(intersects[0].object);
         }
@@ -1384,10 +1395,19 @@ function animate() {
     requestAnimationFrame( animate );
     
     controls.update();
-    render();
-    updateLabels();
+    if(loadingFinished){
+        render();
+        updateLabels();
+        updatePositionMark(controls.target)
+    }
     
-    updatePositionMark(controls.target)
+    else {
+       
+        renderer.render(loadingScene,camera);
+    }
+ 
+    
+    
 }
 
 function convertCoordinates(lon2,lat2){
@@ -1648,15 +1668,25 @@ function toScreenPosition(obj, camera){              //calc 2d coordinate of obj
 }
 
 function updateLabels(){
+
+
     
     for( let i=0; i< interactiveObjects.length; i++){
 
         var proj = toScreenPosition(interactiveObjects[i], camera);
+        labelsRaycaster.setFromCamera(interactiveObjects[i].position.clone().project(camera),camera);
+        var intersects = labelsRaycaster.intersectObjects( interactiveObjects );
         
-        document.getElementById("interactiveLabel"+i).style.left=proj.x+'px';
-        document.getElementById("interactiveLabel"+i).style.top=proj.y+'px';
-        if (i==1) {
-          
+      
+            
+        if ( camera.position.z < 20 ) {
+            document.getElementById("interactiveLabel"+i).style.display = 'none'; // not working...
+        }
+
+        else {
+            document.getElementById("interactiveLabel"+i).style.display = 'block';
+            document.getElementById("interactiveLabel"+i).style.left=proj.x+'px';
+            document.getElementById("interactiveLabel"+i).style.top=proj.y+'px';
         }
 
     }
@@ -1665,8 +1695,17 @@ function updateLabels(){
 
         var proj = toScreenPosition(nonInteractiveLabels[i], camera);
         
-        document.getElementById("nonInteractiveLabel"+i).style.left=proj.x+'px';
-        document.getElementById("nonInteractiveLabel"+i).style.top=proj.y+'px';
+        if ( camera.position.z < 20 ) {
+            document.getElementById("nonInteractiveLabel"+i).style.display='none';
+
+        }
+
+        else {
+            document.getElementById("nonInteractiveLabel"+i).style.left=proj.x+'px';
+            document.getElementById("nonInteractiveLabel"+i).style.top=proj.y+'px';
+            document.getElementById("nonInteractiveLabel"+i).style.display='block';
+        }
+       
         
      
 
@@ -1676,8 +1715,17 @@ function updateLabels(){
 
         var proj = toScreenPosition(photos[i], camera);
         
-        document.getElementById("photo_"+i).style.left=proj.x+'px';
-        document.getElementById("photo_"+i).style.top=proj.y+'px';
+        if ( camera.position.z < 20 ) {
+            document.getElementById("photo_"+i).style.display='none';
+
+        }
+
+        else {
+            document.getElementById("photo_"+i).style.left=proj.x+'px';
+            document.getElementById("photo_"+i).style.top=proj.y+'px';
+            document.getElementById("photo_"+i).style.display='block';
+        }
+      
         
      
 
@@ -1687,8 +1735,17 @@ function updateLabels(){
 
         var proj = toScreenPosition(spherePhotos[i], camera);
         
-        document.getElementById("spherePhoto_"+i).style.left=proj.x+'px';
-        document.getElementById("spherePhoto_"+i).style.top=proj.y+'px';
+        if ( camera.position.z < 20 ) {
+            document.getElementById("spherePhoto_"+i).style.display = 'none';
+
+        }
+
+        else {
+            document.getElementById("spherePhoto_"+i).style.left=proj.x+'px';
+            document.getElementById("spherePhoto_"+i).style.top=proj.y+'px';  
+            document.getElementById("spherePhoto_"+i).style.display = 'block';
+        }
+       
         
      
 
@@ -1703,10 +1760,10 @@ function updateLabels(){
         //calc distance
         let d = Math.sqrt((poi[i].position.x - x) * (poi[i].position.x - x) + (poi[i].position.y - y) * (poi[i].position.y - y) + (poi[i].position.z - z) * (poi[i].position.z - z));
    
-        if(d < 800){
+        if((d < 800) && (camera.position.z>20)){
             
             var proj = toScreenPosition(poi[i], camera);
-            console.log(document.getElementById("poi_"+i).style.display)
+           
           
             document.getElementById("poi_"+i).style.left=proj.x+'px';
             document.getElementById("poi_"+i).style.top=proj.y+'px';
@@ -1816,7 +1873,7 @@ function loadInteractiveItem(id) {
     console.log(dl)
     
     
-    flyTo(interactiveObjects[id].position,0.1+dl/10000,dl/40000,1+dl/5000).then( ()=>{
+    flyTo(interactiveObjects[id].position,0.1+dl/5000,dl/10000,1+dl/5000).then( ()=>{
         setTimeout(()=>{ 
             loadInteractivePageCanvas(id,interactivePageRenderer);
 
@@ -1992,7 +2049,7 @@ function topView(){
         camera.position.x= 0;
         camera.position.y= 0;
         camera.position.z= 900;
-        controls.autoRotateSpeed = 0;
+        setRotation()
 
         controls.minPolarAngle=0;
         controls.maxPolarAngle=0;
@@ -2013,8 +2070,8 @@ function topView(){
         updatePositionMark(controls.target);
         controls.minPolarAngle=0.1*Math.PI/2;
         controls.maxPolarAngle=0.98*Math.PI/2;
-        controls.autoRotateSpeed = 0.2 ;
-        controls.autoRotate = true;
+        setRotation()
+        
     }
     
 }
@@ -2492,6 +2549,7 @@ function Movie(){
     }
 
     this.playMovie = function(){
+        let sceneBefore = scene.clone();
         let secPassed = 0;
         let timepoints = this.timepoints;
         let lines = [];
@@ -2590,7 +2648,7 @@ function Movie(){
                 
             }
     
-            if ((j==lines.length)) {
+            if ((j==lines.length)) {  //movie ended!!!!
                 console.log('clearing interval')
                 
                 clearInterval(ivl);
@@ -2600,6 +2658,7 @@ function Movie(){
                 document.getElementById("playButton").disabled = false; // enabling play button again
                 document.getElementById("timeClock").innerHTML = '';
                 document.getElementById("movieButtonMainScreen").hidden = false;
+                
             }
         }, dt);
 
@@ -2678,12 +2737,87 @@ function mainPlayMovieClicked(){
 
 }
 
+function setRotation(){
+
+  
+    controls.autoRotate =(document.getElementById('setRotation').checked * !document.getElementById("topView").checked);
+   
+}
+
 
 //end movie code part
 
 function testFunc(){
+
+
    
 }
+
+
+
+function calculateLoading(){
+
+    //console.log( loading_events)
+    loading_total =0;
+    loading_downloaded=0;
+    for(let i=0; i < loading_events.length; i++){
+        console.log(loading_events[0])
+        loading_total=loading_total + loading_events[i].total;
+        loading_downloaded = loading_downloaded + loading_events[i].loaded;
+    }
+
+    loadingPercentage = loading_downloaded/loading_total;
+    loadMaterial.uniforms.loading.value = loadingPercentage;
+    
+    console.log('calc loading runs ' + loadingPercentage    )
+
+    if( loadingPercentage >= 1) {
+        console.log('loadingFinished')
+        loadingFinished = true;
+    }
+
+
+}
+
+
+function initLoadingScene(){
+    
+   
+
+    let uniforms = {
+        loading: {value: 0.0}
+    }
+    var geo = new THREE.EdgesGeometry( scene.getObjectByName("terrain").geometry ); // or WireframeGeometry( geometry )
+
+    loadMaterial = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: document.getElementById("vertexShader").textContent,
+        fragmentShader: document.getElementById("fragmentShader").textContent
+    })
+    
+
+    var wireframe = new THREE.LineSegments( geo, loadMaterial );
+    wireframe.position.x=   scene.getObjectByName("terrain").position.x;
+    wireframe.position.y=   scene.getObjectByName("terrain").position.y;
+    wireframe.position.z=   scene.getObjectByName("terrain").position.z;
+    loadingScene.add(wireframe);
+    
+
+
+
+    camera.position.set( -700, 1300 , 860 );
+    controls.target = new THREE.Vector3( -650  , -500 , 300)
+
+
+
+
+
+  
+    
+
+  
+}
+  
 
 
 
