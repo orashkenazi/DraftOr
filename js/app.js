@@ -12,7 +12,7 @@ var airpicref = null;
 var nonInteractiveLabels = [];
 var altitudes =[];  //help to calc altitude when clicking on minimap to know what altitude to fly to... (because mini map choose only x,y)
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 100000000000 );
+let controls;
 var labelsRaycaster = new THREE.Raycaster();
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
@@ -22,16 +22,12 @@ let sky, sunSphere;
 let water;
 let airpictextures = [];
 let history_mode=0;
-let loadingFinished = false;
-let loadingPercentage = 0.0;
-let loadingScene = new THREE.Scene();
-
-let loading_events = [];
+let mountain;
 
 
 
-var renderer = new THREE.WebGLRenderer();
-renderer.domElement.id = 'renderer';
+// var renderer = new THREE.WebGLRenderer();
+// renderer.domElement.id = 'renderer';
 
 renderer.setSize( window.innerWidth, window.innerHeight);
 renderer.setPixelRatio( window.devicePixelRatio );
@@ -44,21 +40,20 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 let interactivePageRenderer = new THREE.WebGLRenderer();
 interactivePageRenderer.domElement.id = 'page_renderer';
 
-document.body.appendChild( renderer.domElement );
 
-camera.position.set( -700, 1300 , 860 );
 
-camera.up = new THREE.Vector3(0,0,1);
-//camera.lookAt( new THREE.Vector3( -650  , -500 , 300 ) );
 
-//add Orbit Controls
-var controls = new THREE.OrbitControls( camera, renderer.domElement );
-controls.target = new THREE.Vector3( -650  , -500 , 300)
-updatePositionMark(controls.target);
-controls.minPolarAngle=0.1*Math.PI/2;
-controls.maxPolarAngle=0.98*Math.PI/2;
-controls.autoRotateSpeed = 0.2 ;
-controls.autoRotate = false;
+function initControls(){
+    camera.position.set(-700,1300,860);
+    controls = new THREE.OrbitControls( camera, renderer.domElement );
+    controls.target = new THREE.Vector3( -650  , -500 , 300)
+    updatePositionMark(controls.target);
+    controls.minPolarAngle=0.1*Math.PI/2;
+    controls.maxPolarAngle=0.98*Math.PI/2;
+    controls.autoRotateSpeed = 0.2 ;
+    controls.autoRotate = false;
+}
+
 
 
 var inFlight = false; // determine if currently flying
@@ -71,8 +66,7 @@ var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 let myMovie = new Movie(); //create the movie object
 
-//create wirematerial for loading
-let loadMaterial = null;
+
 
 
 //photos
@@ -133,6 +127,7 @@ createTerrainMaterial();
 
 createImagePlane();
 
+loadObjects();
 
 
 
@@ -328,7 +323,7 @@ loader.load(
          unselectableObjects.push(plane);
          scene.add(plane);
          console.log('Air Picture added')
-         myObjects.push(plane)
+      
 
          setObjectsInSelectList(myObjects)
 
@@ -402,7 +397,7 @@ function addSkyAndWater(){
         scene.add( sunSphere );
         sunSphere.name ="sun"
         unselectableObjects.push(sunSphere);
-        myObjects.push(sunSphere)
+      
 
         /// GUI
         var effectController  = {
@@ -469,7 +464,7 @@ function addSkyAndWater(){
     scene.add( plane );
     plane.name="shadow Plane"
     unselectableObjects.push(plane);
-    myObjects.push(plane)
+    
 
 
     //Create a helper for the shadow camera (optional)
@@ -506,7 +501,7 @@ function addSkyAndWater(){
     
     water.name="water";
     unselectableObjects.push(water);
-    myObjects.push(water);
+    
     scene.add( water );
 
     
@@ -567,16 +562,6 @@ function addSkyAndWater(){
 }
 
 
-// function addLights() {
-//     var ambientLight = new THREE.AmbientLight(0x444444);
-//     ambientLight.intensity = 0.0;
-//     scene.add(ambientLight);
-   
-//     var directionalLight = new THREE.DirectionalLight(0xffffff);
-   
-//     directionalLight.position.set(0, 4, 10).normalize();
-//     scene.add(directionalLight);
-//    }
 
 
 function getTerrainPixelData(){
@@ -713,16 +698,14 @@ function addGround() {
     plane.position.z=-15;
   
     scene.add(plane)
-   
+    mountain = plane;
     
     
     myObjects.push(plane)
     unselectableObjects.push(plane);
     altitudes =JSON.parse(JSON.stringify(plane.geometry.vertices));
 
-    initLoadingScene()
-    loadObjects();
-    animate();
+   
 
     
   }
@@ -773,7 +756,7 @@ function initObjects(){
    place.position.z = 4500;
    
    scene.add(place)
-   myObjects.push(place)
+   
    interactiveObjects.push(place)
 
    var material = new THREE.MeshPhongMaterial( {color: 0x000000, side: THREE.DoubleSide} );
@@ -987,17 +970,20 @@ function createToolTip(){
 function onLoadBody(){
    
     console.log('onLoadBody is running')
-    
+    initControls();
     initObjects();
     addSkyAndWater();
     setObjectsInSelectList(myObjects)
     createInteractiveGUI();
     setRotation();
+    document.body.appendChild(renderer.domElement); //reappend render and hide loading div
+    document.getElementById("loading").style.display='none';
+    animate();
     
     myMovie.createGui();
 
     console.log('turning off loading div')
-    document.getElementById("loading").style.display='none';
+    //document.getElementById("loading").style.display='none';
 
 
     if(!(navigator.userAgent.indexOf('Chrome') > -1)){ //alret if no chrome!
@@ -1674,12 +1660,11 @@ function updateLabels(){
     for( let i=0; i< interactiveObjects.length; i++){
 
         var proj = toScreenPosition(interactiveObjects[i], camera);
-        labelsRaycaster.setFromCamera(interactiveObjects[i].position.clone().project(camera),camera);
-        var intersects = labelsRaycaster.intersectObjects( interactiveObjects );
+        
         
       
             
-        if ( camera.position.z < 20 ) {
+        if ( (camera.position.z < 40) || (interactiveObjects[i].position.distanceTo(camera.position) >5000)  ) {
             document.getElementById("interactiveLabel"+i).style.display = 'none'; // not working...
         }
 
@@ -1695,7 +1680,7 @@ function updateLabels(){
 
         var proj = toScreenPosition(nonInteractiveLabels[i], camera);
         
-        if ( camera.position.z < 20 ) {
+        if ( (camera.position.z < 40 )|| (nonInteractiveLabels[i].position.distanceTo(camera.position) >5000)) {
             document.getElementById("nonInteractiveLabel"+i).style.display='none';
 
         }
@@ -1715,7 +1700,7 @@ function updateLabels(){
 
         var proj = toScreenPosition(photos[i], camera);
         
-        if ( camera.position.z < 20 ) {
+        if ( (camera.position.z < 40 )|| (photos[i].position.distanceTo(camera.position) >5000)) {
             document.getElementById("photo_"+i).style.display='none';
 
         }
@@ -1735,7 +1720,7 @@ function updateLabels(){
 
         var proj = toScreenPosition(spherePhotos[i], camera);
         
-        if ( camera.position.z < 20 ) {
+        if (  (camera.position.z < 40 )|| (spherePhotos[i].position.distanceTo(camera.position) >5000) ) {
             document.getElementById("spherePhoto_"+i).style.display = 'none';
 
         }
@@ -1760,7 +1745,7 @@ function updateLabels(){
         //calc distance
         let d = Math.sqrt((poi[i].position.x - x) * (poi[i].position.x - x) + (poi[i].position.y - y) * (poi[i].position.y - y) + (poi[i].position.z - z) * (poi[i].position.z - z));
    
-        if((d < 800) && (camera.position.z>20)){
+        if((d < 800) && (camera.position.z>40)){
             
             var proj = toScreenPosition(poi[i], camera);
            
@@ -1963,9 +1948,9 @@ function onMiniMapClick(event){
     xpixel=Math.floor(event.layerX*300/200)
     ypixel= Math.floor(event.layerY*300/200)
     index = xpixel + 300*(ypixel)
-
-    z=altitudes[index].z
     
+    z=altitudes[index].z+200;
+    console.log(z)
     if (z<0){z=0;}
     var dz=Math.abs(z-controls.target.z)/2000;
     console.log('dz=',dz)
@@ -2056,6 +2041,8 @@ function topView(){
         camera.lookAt( new THREE.Vector3(0,0, 0 ) );
         controls.target = new THREE.Vector3(0,0, 0 ) ;
         updatePositionMark(controls.target);
+
+        document.getElementById("topViewButton").classList.add("active");
     }
 
     else{
@@ -2071,6 +2058,7 @@ function topView(){
         controls.minPolarAngle=0.1*Math.PI/2;
         controls.maxPolarAngle=0.98*Math.PI/2;
         setRotation()
+        document.getElementById("topViewButton").classList.remove("active");
         
     }
     
@@ -2755,68 +2743,7 @@ function testFunc(){
 
 
 
-function calculateLoading(){
 
-    //console.log( loading_events)
-    loading_total =0;
-    loading_downloaded=0;
-    for(let i=0; i < loading_events.length; i++){
-        console.log(loading_events[0])
-        loading_total=loading_total + loading_events[i].total;
-        loading_downloaded = loading_downloaded + loading_events[i].loaded;
-    }
-
-    loadingPercentage = loading_downloaded/loading_total;
-    loadMaterial.uniforms.loading.value = loadingPercentage;
-    
-    console.log('calc loading runs ' + loadingPercentage    )
-
-    if( loadingPercentage >= 1) {
-        console.log('loadingFinished')
-        loadingFinished = true;
-    }
-
-
-}
-
-
-function initLoadingScene(){
-    
-   
-
-    let uniforms = {
-        loading: {value: 0.0}
-    }
-    var geo = new THREE.EdgesGeometry( scene.getObjectByName("terrain").geometry ); // or WireframeGeometry( geometry )
-
-    loadMaterial = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: document.getElementById("vertexShader").textContent,
-        fragmentShader: document.getElementById("fragmentShader").textContent
-    })
-    
-
-    var wireframe = new THREE.LineSegments( geo, loadMaterial );
-    wireframe.position.x=   scene.getObjectByName("terrain").position.x;
-    wireframe.position.y=   scene.getObjectByName("terrain").position.y;
-    wireframe.position.z=   scene.getObjectByName("terrain").position.z;
-    loadingScene.add(wireframe);
-    
-
-
-
-    camera.position.set( -700, 1300 , 860 );
-    controls.target = new THREE.Vector3( -650  , -500 , 300)
-
-
-
-
-
-  
-    
-
-  
-}
   
 
 
