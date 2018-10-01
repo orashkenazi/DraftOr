@@ -397,6 +397,7 @@ function addSkyAndWater(){
         scene.add( sunSphere );
         sunSphere.name ="sun"
         unselectableObjects.push(sunSphere);
+        myObjects.push(sunSphere);
       
 
         /// GUI
@@ -2178,7 +2179,7 @@ function Subtitle(time,duration,text,x,y,height,width,fontSize){
 }
 
 function ObjectEvent(time,object,property,value){
-    
+    console.log(time,object,property,value)
     this.time = time;
     this.object = object;
     this.property = property;
@@ -2188,6 +2189,20 @@ function ObjectEvent(time,object,property,value){
         if (this.property === 'color'){
             console.log('changing color')
             this.object.material.color = this.value;
+        }
+
+        if ((this.property === 'inclination') && (this.object.name === 'sun')){
+            console.log('changing inclination')
+            var theta = Math.PI * (this.value - 0.5 );
+            var phi = 2 * Math.PI * ( 0.2581 - 0.5 );
+            sunSphere.position.z = 40000000 * Math.cos( theta );
+            sunSphere.position.x = 40000000 * Math.sin( theta ) * Math.sin( phi );
+            sunSphere.position.y = 40000000 * Math.sin( theta) * Math.cos( phi );
+            
+            sky.material.uniforms.sunPosition.value.copy( sunSphere.position );
+            water.material.uniforms.sunDirection.value.copy( sunSphere.position ).normalize();
+        
+            directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
         }
 
         if (this.property === 'opacity'){
