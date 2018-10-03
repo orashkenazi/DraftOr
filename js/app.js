@@ -12,6 +12,7 @@ var airpicref = null;
 var nonInteractiveLabels = [];
 var altitudes =[];  //help to calc altitude when clicking on minimap to know what altitude to fly to... (because mini map choose only x,y)
 var scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2( 0xa5aab7, 0.000038 );
 let controls;
 var labelsRaycaster = new THREE.Raycaster();
 var raycaster = new THREE.Raycaster();
@@ -65,6 +66,8 @@ var hoverColor = new THREE.Color( 0x4C43D5 );
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 let myMovie = new Movie(); //create the movie object
+
+
 
 
 
@@ -165,7 +168,8 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
         var particleGeometry1 = new THREE.Geometry();
         var particleGeometry2 = new THREE.Geometry();
 		//add particles to scene
-		
+        
+    
 	
 			
 		//create particles
@@ -194,7 +198,8 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
                 "./images/particle.png"
               ),
 			blending: THREE.AdditiveBlending,
-			transparent: true
+            transparent: true,
+            alphaTest: 0.5
         });
         
         var pMaterial2 = new THREE.ParticleBasicMaterial({
@@ -204,7 +209,8 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
                 "./images/particle.png"
               ),
 			blending: THREE.AdditiveBlending,
-			transparent: true
+			transparent: true,
+            alphaTest: 0.5
 		});
 	
 	
@@ -395,7 +401,9 @@ function addSkyAndWater(){
         //sunSphere.position.z = + 700000;
         sunSphere.visible = false;
         scene.add( sunSphere );
-        sunSphere.name ="sun"
+        sunSphere.name ="sun";
+        
+    
         unselectableObjects.push(sunSphere);
         myObjects.push(sunSphere);
       
@@ -410,7 +418,9 @@ function addSkyAndWater(){
         inclination: 0.63, // elevation / inclination
         azimuth: 0.2581, // Facing front,
         sun: ! true
-    };
+        };
+
+        sunSphere.inclination = effectController.inclination;
 
     var distance = 40000000;
     
@@ -456,7 +466,7 @@ function addSkyAndWater(){
 
 
     var planeMaterial = new THREE.ShadowMaterial();
-    planeMaterial.opacity = 0.9;
+    planeMaterial.opacity = 0.5;
 
     var plane = new THREE.Mesh( planeGeometry, planeMaterial );
     plane.position.z = 0.1;
@@ -538,7 +548,8 @@ function addSkyAndWater(){
                 
      
 	function guiChanged() {
-        console.log(directionalLight.shadow.camera.far,directionalLight.shadow.bias)
+        sunSphere.inclination = effectController.inclination;
+        
         var uniforms = sky.material.uniforms;
         uniforms.turbidity.value = effectController.turbidity;
         uniforms.rayleigh.value = effectController.rayleigh;
@@ -556,7 +567,7 @@ function addSkyAndWater(){
        
         directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
 
-    
+        scene.getObjectByName("shadow Plane").material.opacity=  -0.95*4*(sunSphere.inclination-1)*sunSphere.inclination;
       
     }
 
@@ -726,12 +737,12 @@ function addGround() {
   }
  
   function loadObjects() {
-    loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:1,color:new THREE.Color( 0xffffff)});
+    loadingOBJObject('./models/saint-denis/prunel_bati.obj','buildings',{ castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false, buildref:true,transparent:0.7,color:new THREE.Color( 0xffffff)});
     //loadingOBJObject('./models/saint-denis/prunel_ground.obj','ground');
     
     loadingOBJObject('./models/saint-denis/prunel_roof.obj','roof',{castShadow:true, offset:{x:0,y:0,z:-3},unselectable:true,hidden:false,transparent:0.6,color:new THREE.Color( 0xffffff)});
-    loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{receiveShadow:false, offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
-    loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{receiveShadow:false, offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x30D97D)});
+    loadingOBJObject('./models/saint-denis/prunel_streets.obj','street',{ transparent: 0, receiveShadow:false, offset:{x:0,y:0,z:-2.5},unselectable:true,hidden:false});
+    loadingOBJObject('./models/saint-denis/prunel_mainstreet.obj','Rue Marechal Leclerc',{transparent:0.5, receiveShadow:false, offset:{x:0,y:0,z:-2}, offsetChildren: {x:550,y:-194,z:-4}, interactive:true, color:new THREE.Color( 0x4E4E59)});
     
     
     
@@ -982,6 +993,13 @@ function onLoadBody(){
     animate();
     
     myMovie.createGui();
+    //load data to movie
+    $.getJSON(("./data/movie.json"), function(json) {
+        
+        myMovie.loadMovie(json);
+        myMovie.refreshGui();
+    });
+    //
 
     console.log('turning off loading div')
     //document.getElementById("loading").style.display='none';
@@ -1203,7 +1221,7 @@ function loadingOBJObject(path,name,options){
                 unselectableObjects.push(newObject);
             }
 
-            if(options.transparent){
+            if(options.transparent != null){
                 newObject.material.transparent=true;
                 newObject.material.opacity=options.transparent;
             }
@@ -1958,9 +1976,11 @@ function onMiniMapClick(event){
     
     
     //and now lets fly to it..
+    dx=camera.position.x-x;
+    dy=camera.position.y-y;
+    dl=Math.sqrt(dx*dx+dy*dy)
     
-    
-   flyTo({x:x,y:y,z:z},2,dz,10)
+   flyTo({x:x,y:y,z:z},0.1+dl/5000,dz,10)
     
 }
 
@@ -2135,6 +2155,12 @@ function Subtitle(time,duration,text,x,y,height,width,fontSize){
     this.time = time;
     this.duration = duration;
     this.text = text;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.fontSize = fontSize;
+
   
     
     let p=document.createElement("p");
@@ -2170,11 +2196,12 @@ function Subtitle(time,duration,text,x,y,height,width,fontSize){
 
     this.on = function() {
         this.div.classList.add('on')
+        setTimeout(() => {
+            this.div.classList.remove('on');
+        }, this.duration*1000);
     }
 
-    this.off = function() {
-       this.div.classList.remove('on');
-    }
+
     
 }
 
@@ -2193,20 +2220,47 @@ function ObjectEvent(time,object,property,value){
 
         if ((this.property === 'inclination') && (this.object.name === 'sun')){
             console.log('changing inclination')
-            var theta = Math.PI * (this.value - 0.5 );
-            var phi = 2 * Math.PI * ( 0.2581 - 0.5 );
-            sunSphere.position.z = 40000000 * Math.cos( theta );
-            sunSphere.position.x = 40000000 * Math.sin( theta ) * Math.sin( phi );
-            sunSphere.position.y = 40000000 * Math.sin( theta) * Math.cos( phi );
-            
-            sky.material.uniforms.sunPosition.value.copy( sunSphere.position );
-            water.material.uniforms.sunDirection.value.copy( sunSphere.position ).normalize();
+
+         
+            oldInclination = sunSphere.inclination;
+           
+            let dI = (this.value - oldInclination)/20;
         
-            directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
+            
+            let valstep=0;
+           
+            
+            let val = setInterval(()=>{
+                
+              sunSphere.inclination =  sunSphere.inclination + dI;
+              console.log(sunSphere.inclination)
+              valstep++;
+
+              var theta = Math.PI * (sunSphere.inclination - 0.5 );
+              var phi = 2 * Math.PI * ( 0.2581 - 0.5 );
+              sunSphere.position.z = 40000000 * Math.cos( theta );
+              sunSphere.position.x = 40000000 * Math.sin( theta ) * Math.sin( phi );
+              sunSphere.position.y = 40000000 * Math.sin( theta) * Math.cos( phi );
+              
+              sky.material.uniforms.sunPosition.value.copy( sunSphere.position );
+              water.material.uniforms.sunDirection.value.copy( sunSphere.position ).normalize();
+          
+              directionalLight.position.set(sunSphere.position.normalize().x,sunSphere.position.normalize().y,sunSphere.position.normalize().z);
+              scene.getObjectByName("shadow Plane").material.opacity=  -0.95*4*(sunSphere.inclination-1)*sunSphere.inclination;
+              
+
+              if (valstep == 20) {
+                console.log('finished changing sun position');
+                 
+                clearInterval(val);
+              }
+            },50);
+
+           
         }
 
         if (this.property === 'opacity'){
-                console.log(this.object.material.transparent,this.object.material.opacity,this.object.visible)
+                
                 this.object.material.transparent = true;
                 
                
@@ -2216,7 +2270,7 @@ function ObjectEvent(time,object,property,value){
                 this.object.material.transparent = true;
                 
                 let valstep=0;
-                let that = this;
+               
                 
                 let val = setInterval(()=>{
                     
@@ -2262,7 +2316,6 @@ function Movie(){
     this.objectEvents = [];
     this.timepoints =[];
     this.lines = [];
-    this.timepoints = [];
     this.subtitles = []
     this.createGui = function (){
 
@@ -2323,9 +2376,15 @@ function Movie(){
             // object events
             
 
-            //selectbox:
+            //selecobject tbox:
             let select = document.getElementById("objectSelectorForEvent");
-            
+            let option = document.createElement("option");
+            option.value = 0;
+            option.innerHTML = 'Select Object';
+            option.disabled = true;
+            option.selected = true;
+            select.appendChild(option);
+
             for(let i=0; i < myObjects.length; i++){
                 console.log(i)
                 let option = document.createElement("option");
@@ -2333,6 +2392,9 @@ function Movie(){
                 option.innerHTML = myObjects[i].name;
                 select.appendChild(option);
             }
+
+            //selectproperty box:
+            document.getElementById("newObjectEventProperty")[0].selected = true;
 
             //table:
             
@@ -2589,7 +2651,7 @@ function Movie(){
         let j=0;
         let i_oe = 0;
         let i_s = 0;
-        let turnedOn = [];
+ 
         document.getElementById("timeClock").innerHTML = '00:00';
         let ivl= setInterval(() => { 
             t=t+dt;
@@ -2620,20 +2682,12 @@ function Movie(){
             if(this.subtitles[i_s].time < t/1000){    ///like above with objectevents.. only this time we will check also for the off...
                 console.log('turning on', this.subtitles[i_s])
                 this.subtitles[i_s].on();
-                turnedOn.push(this.subtitles[i_s]);
+               
+            
                 i_s++;
                }
            }
            
-           for(let i_so=0; i_so < turnedOn.length; i_so++){
-               if (turnedOn[i_so].time + turnedOn[i_so].duration < t/1000) {
-                    console.log('turning off')
-                   turnedOn[i_so].off();
-                   turnedOn.splice(i_so,1)
-                   i_so=i_so-1;
-               }
-           }
-          
             
            //camera changes:
 
@@ -2670,12 +2724,63 @@ function Movie(){
         
     
     };
+
+
+    this.saveMovie = function(){
+        var obj = {a: 123, b: "4 5 6"};
+        var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myMovie));
+    
+        var a = document.createElement('a');
+        a.href = 'data:' + data;
+        a.download = 'data.json';
+        a.innerHTML = 'download JSON';
+        a.click();
+    }
+
+    this.loadMovie = function(movie){
+
+      for(let i=0; i<movie.timepoints.length; i++){
+          movie.timepoints[i].position = new THREE.Vector3(movie.timepoints[i].position.x,movie.timepoints[i].position.y,movie.timepoints[i].position.z)
+          movie.timepoints[i].target = new THREE.Vector3(movie.timepoints[i].target.x,movie.timepoints[i].target.y,movie.timepoints[i].target.z)
+      }
+      this.timepoints = movie.timepoints;
+      
+      for(let i=0; i<movie.objectEvents.length; i++){
+        myMovie.addObjectEvent(new ObjectEvent(
+            movie.objectEvents[i].time,
+            scene.getObjectByName(movie.objectEvents[i].object.object.name),
+            movie.objectEvents[i].property,
+            movie.objectEvents[i].value
+        ))
+     
+    }
+
+    for(let i=0; i<movie.subtitles.length; i++){
+        myMovie.addSubtitle(new Subtitle(
+            movie.subtitles[i].time,
+            movie.subtitles[i].duration,
+            movie.subtitles[i].text,
+            movie.subtitles[i].x,
+            movie.subtitles[i].y,
+            movie.subtitles[i].height,
+            movie.subtitles[i].width,
+            movie.subtitles[i].fontSize
+        ));
+     
+    }
+        
+    }
 }
 
 function addObjectEventClicked() {
+  
+    if((document.getElementById('newObjectEventProperty').selectedIndex==0) || (document.getElementById('objectSelectorForEvent').selectedIndex==0)) {
+        console.log('Object or Property was not selected')
+        return;
+    }
     myMovie.addObjectEvent(new ObjectEvent(
         +document.getElementById('newObjectEventTime').value,
-        myObjects[document.getElementById('objectSelectorForEvent').selectedIndex],
+        myObjects[document.getElementById('objectSelectorForEvent').selectedIndex-1],
         document.getElementById('newObjectEventProperty')[document.getElementById('newObjectEventProperty').selectedIndex].value,
         +document.getElementById('newObjectEventValue').value
     ))
@@ -2727,9 +2832,7 @@ function previewSubtitle(){
     );
 
     previewSub.on();
-    setTimeout(() => {
-        previewSub.off();
-    }, previewSub.duration*1000);
+    
 
 }
 
@@ -2739,6 +2842,12 @@ function mainPlayMovieClicked(){
     
 
 }
+
+function movieInputChanged(){
+ 
+}
+
+
 
 function setRotation(){
 
@@ -2753,6 +2862,7 @@ function setRotation(){
 function testFunc(){
 
 
+  
    
 }
 

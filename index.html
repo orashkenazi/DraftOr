@@ -345,6 +345,8 @@
 
                                         <div id="movieData" class="movieData">
                                                 <button enabled id="playButton" onclick="myMovie.playMovie();" class="movieControlButton" style="width: 100px; text-align:center;  display:inline-block;"><i class="fa fa-play" style="margin-right:3px"></i><span id="playMovieButtonText">Play Movie</span></button> <span id="timeClock" style="font-size:12px"></span>
+                                                <button enabled id="saveMovieButton" onclick="myMovie.saveMovie();" class="movieControlButton" style="width: 100px; text-align:center;  display:inline-block;"><i class="fa fa-save" style="margin-right:3px"></i><span id="playMovieButtonText">Download Movie</span></button>
+                                               
                                                 <BR><BR>
                                                 <div class="movieControlWrapper">
                                                                 Camera time points:
@@ -387,12 +389,12 @@
                                                                                 </div>
                                                                                 <div style="display:inline-block; width:100%; ">
                                                                                                 <span style="float:left;">Time (seconds): </span>
-                                                                                                <input type="number" id="newObjectEventTime" style="float:right;  width:100px; text-align:center; " placeholder="Time (sec)">
+                                                                                                <input required type="number" id="newObjectEventTime" style="float:right;  width:100px; text-align:center; " placeholder="Time (sec)">
                                                                                 </div><BR>
                                                                                 <div style="display:inline-block; width:100%; ">
                                                                                                 <span style="float:left;">Property </span>
-                                                                                                <select placeholder="Property" style="float:right;  width:100px;" id="newObjectEventProperty">
-                                                                                                        
+                                                                                                <select style="float:right;  width:100px;" id="newObjectEventProperty">
+                                                                                                        <option value=0 disabled>Select Property</option>
                                                                                                         <option value='opacity'>Opacity</option>
                                                                                                         <option value='inclination'>Inclination</option>
                                                                                                 </select>
@@ -440,7 +442,7 @@
                                                                                                         <input type="number" id="subtitleTime" style="float:right;  width:100px; text-align:center; " placeholder="Time (sec)">
                                                                                         </div>
                                                                                         <div style="display:inline-block; width:100%; ">
-                                                                                                        <span style="float:left;">Time (seconds): </span>
+                                                                                                        <span style="float:left;">Duration (seconds): </span>
                                                                                                         <input type="number" id="subtitleDuration" style="float:right;  width:100px; text-align:center; " placeholder="Duration (sec)">
                                                                                         </div>
                                                                                         <div style="display:inline-block; width:100%; ">
