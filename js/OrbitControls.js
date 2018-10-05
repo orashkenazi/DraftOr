@@ -306,21 +306,33 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 
 		let zLimit = calcGroundAltitude(nextpos);
-		console.log(zLimit)
-
+	
+		console.log(this.target)
 		if((nextpos.x !== position.x)  && (nextpos.y !== position.y) && (nextpos.y !== position.y)) {
 			console.log('moving?')
+			
+			
 			if( (nextpos.z - zLimit < 10) || (zLimit == null) ){
 			
 				console.log('heyboy... let z boost u!')	
-				this.target.add( pan );
+				
+				position.copy( newTarget ).add( offset );
+				
+				position.z = zLimit + 10;
+				
+
+			}
+
+			else if( nextpos.z > 10000) {
+				console.log('dude...no air at this altitudes... you shall not pass!')
+				
 				position.copy( this.target ).add( offset );
 				
-				position.z = zLimit + 40;
-				this.object.lookAt( newTarget );
+				position.z = 10000;
 				
 			}
 			else {
+				console.log('normal changiing??')
 				this.target.add( pan );
 				position.copy( this.target ).add( offset );
 				this.object.lookAt( this.target );
