@@ -2888,7 +2888,7 @@ function calcGroundAltitude(position){
 //     }
 
 
-    console.log('calc alt for position',position)
+    
     var x,y;
 
     x=position.x;
@@ -2898,7 +2898,7 @@ function calcGroundAltitude(position){
 
     x =  x/74830
     y = -y/80060
-    console.log('after norm pos', x,y)
+   
     xpixel=Math.floor(x*300)
     ypixel= Math.floor(y*300)
    
@@ -2911,13 +2911,13 @@ function calcGroundAltitude(position){
         index4 = xpixel+1+300*(ypixel+1);
         z=Math.max(altitudes[index1].z,altitudes[index2].z,altitudes[index3].z,altitudes[index4].z);
     }
-    
+
     else {
         z=0;
     }
    
 
-    console.log('altitude is :',z)
+    //console.log('altitude is :',z)
 
     return z;
 

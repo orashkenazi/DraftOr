@@ -136,37 +136,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
-		//stop from underground going
-		var offset2 = this.object.position.clone().sub( scope.target );
-		var radius = offset2.length();
-
-		offset2.applyQuaternion( quat );
-		
-		var theta2 = Math.atan2( offset2.x, offset2.z );
-
-		// angle from y-axis
-
-		var phi2 = Math.atan2( Math.sqrt( offset2.x * offset2.x + offset2.z * offset2.z ), offset2.y );
-
 	
-
-	
-		
-		offset2.x = radius * Math.sin( phi2 ) * Math.sin( theta2 -angle );
-		offset2.y = radius * Math.cos( phi2 );
-		offset2.z = radius * Math.sin( phi2 ) * Math.cos( theta2 - angle );
-
-		offset2.applyQuaternion( quatInverse );
-
-		let nextpos = new THREE.Vector3();
-		nextpos.copy( scope.target ).add( offset2 );
-
-	
-		if( (nextpos.z - calcGroundAltitude(nextpos) < 100) || (calcGroundAltitude(nextpos) == null) ){
-			
-			return;
-			
-		}
 		
 		thetaDelta -= angle;
 
@@ -180,37 +150,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
-		//stop from underground going
-		var offset2 = this.object.position.clone().sub( scope.target );
-		var radius = offset2.length();
 
-		offset2.applyQuaternion( quat );
-		
-		var theta2 = Math.atan2( offset2.x, offset2.z );
-
-		// angle from y-axis
-
-		var phi2 = Math.atan2( Math.sqrt( offset2.x * offset2.x + offset2.z * offset2.z ), offset2.y );
-
-	
-
-	
-		
-		offset2.x = radius * Math.sin( phi2-angle ) * Math.sin( theta2  );
-		offset2.y = radius * Math.cos( phi2 -angle);
-		offset2.z = radius * Math.sin( phi2 - angle ) * Math.cos( theta2 );
-
-		offset2.applyQuaternion( quatInverse );
-
-		let nextpos = new THREE.Vector3();
-		nextpos.copy( scope.target ).add( offset2 );
-
-	
-		if( (nextpos.z - calcGroundAltitude(nextpos) < 100) || (calcGroundAltitude(nextpos) == null) ){
-			
-			return;
-			
-		}
 		phiDelta -= angle;
 
 	};
@@ -218,23 +158,14 @@ THREE.OrbitControls = function ( object, domElement ) {
 	// pass in distance in world space to move left
 	this.panLeft = function ( distance ) {
 
-		console.log('cam pos panleft',camera.position)
+		
 		var te = this.object.matrix.elements;
 		
 		// get X column of matrix
 		panOffset.set( te[ 0 ], te[ 1 ], te[ 2 ] );
 	
 		panOffset.multiplyScalar( - distance );
-		
-		//verify offset will not put us under ground...
-		let nextpos = this.object.position.clone().add(panOffset);
-	
-		
-		if( (nextpos.z - calcGroundAltitude(nextpos) < 10) || (calcGroundAltitude(nextpos) == null) ){
-			
-			return;
-			
-		}
+
 
 		pan.add( panOffset );
 
@@ -250,15 +181,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		panOffset.set( te[ 4 ], te[ 5 ], te[ 6 ] );
 		panOffset.multiplyScalar( distance );
 		
-		//verify offset will not put us under ground...
-		let nextpos = this.object.position.clone().add(panOffset);
-		
-		
-		if(  (nextpos.z - calcGroundAltitude(nextpos) < 10) || (calcGroundAltitude(nextpos) == null)){
-			
-			return;
-			
-		}
+
 
 		pan.add( panOffset );
 
@@ -368,7 +291,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 		radius = Math.max( this.minDistance, Math.min( this.maxDistance, radius ) );
 		
 		// move target to panned location
-		this.target.add( pan );
+		let newTarget = this.target.clone();
+		newTarget.add(pan);
 
 		offset.x = radius * Math.sin( phi ) * Math.sin( theta );
 		offset.y = radius * Math.cos( phi );
@@ -376,10 +300,37 @@ THREE.OrbitControls = function ( object, domElement ) {
 		
 		// rotate offset back to "camera-up-vector-is-up" space
 		offset.applyQuaternion( quatInverse );
-
-		position.copy( this.target ).add( offset );
 		
-		this.object.lookAt( this.target );
+		let nextpos = new THREE.Vector3();
+		nextpos.copy( newTarget ).add( offset );
+
+
+		let zLimit = calcGroundAltitude(nextpos);
+		console.log(zLimit)
+
+		if((nextpos.x !== position.x)  && (nextpos.y !== position.y) && (nextpos.y !== position.y)) {
+			console.log('moving?')
+			if( (nextpos.z - zLimit < 10) || (zLimit == null) ){
+			
+				console.log('heyboy... let z boost u!')	
+				this.target.add( pan );
+				position.copy( this.target ).add( offset );
+				
+				position.z = zLimit + 40;
+				this.object.lookAt( newTarget );
+				
+			}
+			else {
+				this.target.add( pan );
+				position.copy( this.target ).add( offset );
+				this.object.lookAt( this.target );
+				}
+		}
+		
+	
+		
+		
+		
 
 		thetaDelta = 0;
 		phiDelta = 0;
