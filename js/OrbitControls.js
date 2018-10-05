@@ -129,13 +129,45 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var endEvent = { type: 'end'};
 
 	this.rotateLeft = function ( angle ) {
-
+	
 		if ( angle === undefined ) {
 
 			angle = getAutoRotationAngle();
 
 		}
 
+		//stop from underground going
+		var offset2 = this.object.position.clone().sub( scope.target );
+		var radius = offset2.length();
+
+		offset2.applyQuaternion( quat );
+		
+		var theta2 = Math.atan2( offset2.x, offset2.z );
+
+		// angle from y-axis
+
+		var phi2 = Math.atan2( Math.sqrt( offset2.x * offset2.x + offset2.z * offset2.z ), offset2.y );
+
+	
+
+	
+		
+		offset2.x = radius * Math.sin( phi2 ) * Math.sin( theta2 -angle );
+		offset2.y = radius * Math.cos( phi2 );
+		offset2.z = radius * Math.sin( phi2 ) * Math.cos( theta2 - angle );
+
+		offset2.applyQuaternion( quatInverse );
+
+		let nextpos = new THREE.Vector3();
+		nextpos.copy( scope.target ).add( offset2 );
+
+	
+		if( (nextpos.z - calcGroundAltitude(nextpos) < 100) || (calcGroundAltitude(nextpos) == null) ){
+			
+			return;
+			
+		}
+		
 		thetaDelta -= angle;
 
 	};
@@ -148,6 +180,37 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
+		//stop from underground going
+		var offset2 = this.object.position.clone().sub( scope.target );
+		var radius = offset2.length();
+
+		offset2.applyQuaternion( quat );
+		
+		var theta2 = Math.atan2( offset2.x, offset2.z );
+
+		// angle from y-axis
+
+		var phi2 = Math.atan2( Math.sqrt( offset2.x * offset2.x + offset2.z * offset2.z ), offset2.y );
+
+	
+
+	
+		
+		offset2.x = radius * Math.sin( phi2-angle ) * Math.sin( theta2  );
+		offset2.y = radius * Math.cos( phi2 -angle);
+		offset2.z = radius * Math.sin( phi2 - angle ) * Math.cos( theta2 );
+
+		offset2.applyQuaternion( quatInverse );
+
+		let nextpos = new THREE.Vector3();
+		nextpos.copy( scope.target ).add( offset2 );
+
+	
+		if( (nextpos.z - calcGroundAltitude(nextpos) < 100) || (calcGroundAltitude(nextpos) == null) ){
+			
+			return;
+			
+		}
 		phiDelta -= angle;
 
 	};
@@ -155,26 +218,48 @@ THREE.OrbitControls = function ( object, domElement ) {
 	// pass in distance in world space to move left
 	this.panLeft = function ( distance ) {
 
+		console.log('cam pos panleft',camera.position)
 		var te = this.object.matrix.elements;
 		
 		// get X column of matrix
 		panOffset.set( te[ 0 ], te[ 1 ], te[ 2 ] );
-		
+	
 		panOffset.multiplyScalar( - distance );
 		
+		//verify offset will not put us under ground...
+		let nextpos = this.object.position.clone().add(panOffset);
+	
+		
+		if( (nextpos.z - calcGroundAltitude(nextpos) < 10) || (calcGroundAltitude(nextpos) == null) ){
+			
+			return;
+			
+		}
+
 		pan.add( panOffset );
 
 	};
 
 	// pass in distance in world space to move up
 	this.panUp = function ( distance ) {
-
+	
+		
 		var te = this.object.matrix.elements;
 
 		// get Y column of matrix
 		panOffset.set( te[ 4 ], te[ 5 ], te[ 6 ] );
 		panOffset.multiplyScalar( distance );
 		
+		//verify offset will not put us under ground...
+		let nextpos = this.object.position.clone().add(panOffset);
+		
+		
+		if(  (nextpos.z - calcGroundAltitude(nextpos) < 10) || (calcGroundAltitude(nextpos) == null)){
+			
+			return;
+			
+		}
+
 		pan.add( panOffset );
 
 	};
@@ -182,7 +267,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	// pass in x,y of change desired in pixel space,
 	// right and down are positive
 	this.pan = function ( deltaX, deltaY ) {
-
+	
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
 		if ( scope.object.fov !== undefined ) {
@@ -196,6 +281,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 			targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
 
 			// we actually don't use screenWidth, since perspective camera is fixed to screen height
+			
 			scope.panLeft( 2 * deltaX * targetDistance / element.clientHeight );
 			scope.panUp( 2 * deltaY * targetDistance / element.clientHeight );
 
@@ -240,7 +326,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.update = function () {
 
+	
 		var position = this.object.position;
+		
 
 		offset.copy( position ).sub( this.target );
 
@@ -260,7 +348,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			this.rotateLeft( getAutoRotationAngle() );
 
 		}
-
+	
+		
 		theta += thetaDelta;
 		phi += phiDelta;
 
@@ -284,12 +373,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 		offset.x = radius * Math.sin( phi ) * Math.sin( theta );
 		offset.y = radius * Math.cos( phi );
 		offset.z = radius * Math.sin( phi ) * Math.cos( theta );
-
+		
 		// rotate offset back to "camera-up-vector-is-up" space
 		offset.applyQuaternion( quatInverse );
 
 		position.copy( this.target ).add( offset );
-
+		
 		this.object.lookAt( this.target );
 
 		thetaDelta = 0;

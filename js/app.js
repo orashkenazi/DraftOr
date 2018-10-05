@@ -1963,7 +1963,7 @@ function onMiniMapClick(event){
     x+=-29840;
     y+=+7210;
 
-   
+   console.log(event.layerX/200,event.layerY/200)
     xpixel=Math.floor(event.layerX*300/200)
     ypixel= Math.floor(event.layerY*300/200)
     index = xpixel + 300*(ypixel)
@@ -2861,11 +2861,68 @@ function setRotation(){
 
 function testFunc(){
 
+    calcGroundAltitude(camera.position)
+   
 
   
    
 }
 
+
+function calcGroundAltitude(position){
+        
+//     let terrainRaycaster = new THREE.Raycaster();
+//     terrainRaycaster.set(position,new THREE.Vector3(0,0,-1));
+
+//     let terrainIntersect = terrainRaycaster.intersectObjects( [scene.getObjectByName("terrain")] );
+
+  
+
+//    if (terrainIntersect.length > 0){
+    
+//     return (terrainIntersect[0].point.z + 15);
+//    }
+   
+//    else {
+//        return null;
+//     }
+
+
+    console.log('calc alt for position',position)
+    var x,y;
+
+    x=position.x;
+    y=position.y;
+    x=x+29840;
+    y=y-7210;
+
+    x =  x/74830
+    y = -y/80060
+    console.log('after norm pos', x,y)
+    xpixel=Math.floor(x*300)
+    ypixel= Math.floor(y*300)
+   
+
+    if ( (xpixel >= 0) && (ypixel >= 0) && (xpixel < 300) && (ypixel < 300)){
+        
+        index1 = xpixel + 300*(ypixel);
+        index2 = xpixel+1+300*(ypixel);
+        index3 = xpixel+300*(ypixel+1);
+        index4 = xpixel+1+300*(ypixel+1);
+        z=Math.max(altitudes[index1].z,altitudes[index2].z,altitudes[index3].z,altitudes[index4].z);
+    }
+    
+    else {
+        z=0;
+    }
+   
+
+    console.log('altitude is :',z)
+
+    return z;
+
+
+}
 
 
 
