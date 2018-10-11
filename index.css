@@ -810,3 +810,21 @@ button:focus {outline:0;}
 *{
     user-select: none;
 }
+
+/* progress */
+
+.barContainer {
+  
+    border: 1px solid white;
+    width:50vw;
+    height:10px;
+    
+}
+
+.barLine {
+    background: rgba(255, 255, 255, 0.808); 
+       
+    height:100%;
+    
+
+}
