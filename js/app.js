@@ -88,7 +88,7 @@ function initControls(){
 
 
 var inFlight = false; // determine if currently flying
-var imgmat =  null; //used in addGround();
+var imgmat =  []; //used in addGround();
 var myObjects = []; //all objects to be controled with admin controls need to be pushed here
 var unselectableObjects = [];   //objects that would not be able to select by click / have hover effect when mouse on them 
 let interactiveObjects = [] //all objects that should be interactive (have label and menu button and extra features).
@@ -313,7 +313,7 @@ loadObjects();
 
 
 
-//for demo, adding particles
+//vehicles (sheres for now)
 
 var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 		//First create the line that we want to animate the particles along
@@ -336,114 +336,87 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
         
 	
 	
-		//next create a set of about 30 animation points along the line
+		//next create a set of about 1000 animation points along the line
         var linePoints1 = createLinePoints(line1.geometry.vertices[0], line1.geometry.vertices[1],1000);
         var linePoints2 = createLinePoints(line2.geometry.vertices[1], line2.geometry.vertices[0],1000);
         
-        var particleGeometry1 = new THREE.Geometry();
-        var particleGeometry2 = new THREE.Geometry();
-		//add particles to scene
+        var geometry = new THREE.SphereGeometry(1.5,8,8);
+        
+		//add spheres
         
     
 	
 			
 		//create particles
-		var numParticles = 25;
-		for(let i=0; i< numParticles; i++){
+        var numCars = 25;
+        let spheres1 =[];
+        let spheres2 = [];
+		for(let i=0; i< numCars; i++){
 			
-			let index = Math.floor(linePoints1.length*i/numParticles);
-			let particle = linePoints1[index];
-			particle.index = index;
-            particleGeometry1.vertices.push( particle );
+			let index1 = Math.floor(linePoints1.length*i/numCars);
+			let sphere1 = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFFC105}) );
+            sphere1.position.copy(linePoints1[index1]);
+            
+            scene.add(sphere1)
+            sphere1.index = index1;
+            spheres1.push( sphere1 );
             
 
-            index = Math.floor(linePoints2.length*i/numParticles);
-			particle = linePoints2[index];
-			particle.index = index;
-			particleGeometry2.vertices.push( particle );
+            let index2 = Math.floor(linePoints2.length*i/numCars);
+            let sphere2 = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFFC105}) );
+            scene.add(sphere2)
+            sphere2.position.copy(linePoints2[index2]);
+            sphere2.index = index2;
+            spheres2.push( sphere2 );
 		}
 			
 
 
-		//set particle material
-		var pMaterial1 = new THREE.ParticleBasicMaterial({
-			color: 0xFF0000,
-            size: 15,
-            map: THREE.ImageUtils.loadTexture(
-                "./images/particle.png"
-              ),
-			blending: THREE.AdditiveBlending,
-            transparent: true,
-            alphaTest: 0.5
-        });
+	
         
-        var pMaterial2 = new THREE.ParticleBasicMaterial({
-			color: 0xFF0000,
-            size: 15,
-            map: THREE.ImageUtils.loadTexture(
-                "./images/particle.png"
-              ),
-			blending: THREE.AdditiveBlending,
-			transparent: true,
-            alphaTest: 0.5
-		});
+       
 	
-	
-        var particles1 = new THREE.ParticleSystem( particleGeometry1, pMaterial1 );
-        var particles2 = new THREE.ParticleSystem( particleGeometry2, pMaterial2 );
-
-        particles1.sortParticles = true;
-        particles2.sortParticles = true;
-        particles1.dynamic = true;
-        particles2.dynamic = true;
-        scene.add(particles1);
-        scene.add(particles2);
 	
 		function UpdateParticles(){
-
-			for(let n=0; n<particles1.geometry.vertices.length; n++){
-				let i;
-				let particle = particles1.geometry.vertices[n];
+            
+          
+			for(let n=0; n<spheres1.length; n++){
 				
-				if (particle.index >= linePoints1.length) {
+				let sphere = spheres1[n];
+				
+				if (sphere.index >= linePoints1.length) {
 					
-					particle.index = 0;
-					particle = linePoints1[0];
+					sphere.index = 0;
+					sphere.position = linePoints1[0];
 				}
 				else {	
 					
 					
-					let i=particle.index+1;
-					particle = linePoints1[particle.index];
-					particle.index = i;
 					
-					particles1.geometry.vertices[n] = particle;
+					sphere.position.copy(linePoints1[sphere.index]);
+                    sphere.index = sphere.index+1;
 				
-				}
-				particles1.geometry.verticesNeedUpdate = true;
                 }
                 
-                for(let n=0; n<particles2.geometry.vertices.length; n++){
-                    let i;
-                    let particle = particles2.geometry.vertices[n];
-                    
-                    if (particle.index >= linePoints2.length) {
-                        
-                        particle.index = 0;
-                        particle = linePoints2[0];
-                    }
-                    else {	
-                        
-                        
-                        let i=particle.index+1;
-                        particle = linePoints2[particle.index];
-                        particle.index = i;
-                        
-                        particles2.geometry.vertices[n] = particle;
-                    
-                    }
-                    particles2.geometry.verticesNeedUpdate = true;
-                    }
+                sphere = spheres2[n];
+				
+				if (sphere.index >= linePoints2.length) {
+					
+					sphere.index = 0;
+					sphere.position = linePoints2[0];
+				}
+				else {	
+					
+					
+					
+					sphere.position.copy(linePoints2[sphere.index]);
+                    sphere.index = sphere.index+1;
+				
+				}
+				
+            }
+                
+               
 			
 		};
 	
@@ -466,12 +439,7 @@ var material = new THREE.LineBasicMaterial({color: 0x0000ff });
 window.addEventListener( 'mousemove', onMouseMove, false );
 window.addEventListener( 'mousedown', onMouseClick, false );
 
-//window.addEventListener('click',checkclickpath,false);
 
-//function checkclickpath(){
-    
-//    console.log(event.path)
-//}
 
 function createImagePlane(){
      // instantiate a loader
@@ -491,7 +459,9 @@ loader.load(
            
          } );
          airpictextures.push(texture);
-         airpictextures.push(new THREE.TextureLoader().load( './images/version-def-histo.jpg'))
+         airpictextures.push(new THREE.TextureLoader().load( './images/version-def-histo-2.jpg'),(texture2) => {
+            texture2.minFilter = THREE.LinearFilter;
+         })
          
          
          var geometry = new THREE.PlaneGeometry(6916*0.377,4790*0.377,1,1);
@@ -528,7 +498,7 @@ function createTerrainMaterial(){
     // load a resource
     loader.load(
         // resource URL
-        './reunion_sat_6000_4.jpg',
+        './reunion_sat_6000_9.jpg',
 
         // onLoad callback
         function ( satTexture ) {
@@ -538,7 +508,36 @@ function createTerrainMaterial(){
                
             } );
             console.log(material)
-            imgmat = material;
+            imgmat.push(material)
+
+            var loader = new THREE.TextureLoader();
+
+            // load a resource
+            loader.load(
+            // resource URL
+            './reunion_sat_6000_histo_1.jpg',
+    
+            // onLoad callback
+            function ( satTexture ) {
+                // in this example we create the material when the texture is loaded
+                var material = new THREE.MeshBasicMaterial( {
+                    map: satTexture
+                   
+                } );
+                console.log(material)
+                imgmat.push(material)
+                
+                
+                
+            },
+    
+            // onProgress callback currently not supported
+            undefined,
+    
+            // onError callback
+            function ( err ) {
+                console.error( 'An error happened.' );
+            })
             
             
             addGround();
@@ -824,7 +823,7 @@ function addGround() {
   
     var geometry = new THREE.PlaneGeometry(74830, 80060, numSegments, numSegments); 
   
-      var material = imgmat;
+      var material = imgmat[0];
     
       
 
@@ -2195,6 +2194,8 @@ function toggleWireframeView(){
 function historyMode(){
     history_mode = 1- history_mode;
     airpicref.material.map = airpictextures[history_mode];
+    mountain.material = imgmat[history_mode]
+
     if (history_mode==1) {
         document.getElementById("historyModeButton").classList.add("active");
     }
