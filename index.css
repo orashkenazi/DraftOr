@@ -807,6 +807,21 @@ button:focus {outline:0;}
     display:none;
 }
 
+.loadingOn{
+    transition: visibility 0s 4s,z-index 0s 4s, opacity 4s ease-in;
+    opacity:1;
+    visibility:visible;
+    z-index:+1000; 
+    
+}
+
+.loadingOff{
+   
+    opacity:0;
+    visibility:hidden;
+    z-index:-1;
+}
+
 *{
     user-select: none;
 }

@@ -1,3 +1,26 @@
+
+//chrome only support alert:
+if(!(navigator.userAgent.indexOf('Chrome') > -1)){ //alret if no chrome!
+    console.log('its not chrome browser.')
+    let alertdiv = document.createElement("div");
+ 
+    alertdiv.id = 'alertdiv';
+    alertdiv.style.alignItems = 'center';
+    alertdiv.style.marginTop = '0px';
+    alertdiv.style.position = 'absolute';
+    alertdiv.style.zIndex = '1005';
+    alertdiv.style.top = '40%';
+    alertdiv.style.left = '30%';
+    alertdiv.style.background = 'rgb(0,0,0,0.8)';
+    alertdiv.style.width = '40%';
+    alertdiv.style.padding = '30px';
+    
+    
+    
+    alertdiv.innerHTML = "<div class='sd-content'><p style='font-size:18px; color:red; font-weight:bold;'>Attention, le navigateur n'est pas Google Chrome: </p><p style='color:white;'>Le siteweb est en cours de developpement et fonctionne uniquement avec Google Chrome.</p></div>";
+    document.body.appendChild(alertdiv)
+}
+
 // -20.884850, 55.467112 = 0 point of our world. (in coordinates)
 
 /*some points (threejs meters)
@@ -52,9 +75,9 @@ interactivePageRenderer.domElement.id = 'page_renderer';
 
 
 function initControls(){
-    camera.position.set(-700,1300,860);
+    camera.position.set(-5349.095,7727.42,4390.05);
     controls = new THREE.OrbitControls( camera, renderer.domElement );
-    controls.target = new THREE.Vector3( -650  , -500 , 300)
+    controls.target = new THREE.Vector3( 200.99  , 190.3 , 870.36)
     updatePositionMark(controls.target);
     controls.minPolarAngle=0.1*Math.PI/2;
     controls.maxPolarAngle=0.98*Math.PI/2;
@@ -567,7 +590,7 @@ function addSkyAndWater(){
         mieCoefficient: 0.005,
         mieDirectionalG: 0.8,
         luminance: 1,
-        inclination: 0.63, // elevation / inclination
+        inclination: 0.014, // elevation / inclination
         azimuth: 0.2581, // Facing front,
         sun: ! true
         };
@@ -1141,7 +1164,7 @@ function onLoadBody(){
     createInteractiveGUI();
     setRotation();
     document.body.appendChild(renderer.domElement); //reappend render and hide loading div
-    document.getElementById("loading").style.display='none';
+    document.getElementById("loading").classList.add('loadingOff');
     animate();
     
     myMovie.createGui();
@@ -1150,33 +1173,14 @@ function onLoadBody(){
         
         myMovie.loadMovie(json);
         myMovie.refreshGui();
+        myMovie.playMovie();
     });
     //
 
-    console.log('turning off loading div')
-    //document.getElementById("loading").style.display='none';
+    
 
 
-    if(!(navigator.userAgent.indexOf('Chrome') > -1)){ //alret if no chrome!
-        console.log('its not chrome browser.')
-        let alertdiv = document.createElement("div");
-     
-        alertdiv.id = 'alertdiv';
-        alertdiv.style.alignItems = 'center';
-        alertdiv.style.marginTop = '0px';
-        alertdiv.style.position = 'absolute';
-        alertdiv.style.zIndex = '1005';
-        alertdiv.style.top = '40%';
-        alertdiv.style.left = '30%';
-        alertdiv.style.background = 'rgb(0,0,0,0.8)';
-        alertdiv.style.width = '40%';
-        alertdiv.style.padding = '30px';
-        
-        
-        
-        alertdiv.innerHTML = "<div class='sd-content'><p style='font-size:18px; color:red; font-weight:bold;'>Attention, le navigateur n'est pas Google Chrome: </p><p style='color:white;'>Le siteweb est en cours de developpement et fonctionne uniquement avec Google Chrome.</p></div>";
-        document.body.appendChild(alertdiv)
-    }
+    
 
     
     
@@ -2378,7 +2382,7 @@ function ObjectEvent(time,object,property,value){
          
             oldInclination = sunSphere.inclination;
            
-            let dI = (this.value - oldInclination)/20;
+            let dI = (this.value - oldInclination)/(50*10);
         
             
             let valstep=0;
@@ -2403,7 +2407,7 @@ function ObjectEvent(time,object,property,value){
               scene.getObjectByName("shadow Plane").material.opacity=  -0.95*4*(sunSphere.inclination-1)*sunSphere.inclination;
               
 
-              if (valstep == 20) {
+              if (valstep == 500) {
                 console.log('finished changing sun position');
                  
                 clearInterval(val);
