@@ -3185,7 +3185,7 @@ function UserPlace(name,position,notes){
 
 
     let notesinput = document.createElement("textarea");
-    
+    notesinput.spellcheck="false";
     notesinput.value = this.notes;
     notesinput.readOnly = true;
     notesinput.oninput = () => {
