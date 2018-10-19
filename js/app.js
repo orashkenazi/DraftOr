@@ -37,7 +37,7 @@ var altitudes =[];  //help to calc altitude when clicking on minimap to know wha
 var scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2( 0xa5aab7, 0.000038 );
 let controls;
-var labelsRaycaster = new THREE.Raycaster();
+//var labelsRaycaster = new THREE.Raycaster();
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),INTERSECTED;
 var theta=0, radius =100;
@@ -97,6 +97,7 @@ var hoverColor = new THREE.Color( 0x4C43D5 );
 var lastColor;                          //used for the selecting
 let selectedObjectIndex;                  //the current selected object in the lsit
 let myMovie = new Movie(); //create the movie object
+let myPlaces =[];
 
 
 
@@ -1179,11 +1180,11 @@ function onLoadBody(){
 
     
 
+    //my places gui and so on..
+    createMyPlacesGUI();
 
     
-
-    
-    
+    //some debubg tools
     document.getElementById("cameraX").value = camera.position.x;
     document.getElementById("cameraY").value = camera.position.y;
     document.getElementById("cameraZ").value = camera.position.z;
@@ -1942,6 +1943,38 @@ function updateLabels(){
 
     }
 
+    //userPlaces:
+
+    for( let i=0; i< myPlaces.length; i++){
+
+        
+        let x = camera.position.x;
+        let y = camera.position.y;
+        let z= camera.position.z;
+        
+        //calc distance
+        let d = Math.sqrt((myPlaces[i].position.x - x) * (myPlaces[i].position.x - x) + (myPlaces[i].position.y - y) * (myPlaces[i].position.y - y) + (myPlaces[i].position.z - z) * (myPlaces[i].position.z - z));
+   
+        if((d < 5000) && (camera.position.z>40)){
+            
+            var proj = toScreenPosition(myPlaces[i], camera);
+           
+            
+            myPlaces[i].domElement.style.left=proj.x+'px';
+            myPlaces[i].domElement.style.top=proj.y+'px';
+            myPlaces[i].domElement.style.display='block';
+        }
+
+        else {
+            
+            myPlaces[i].domElement.style.display='none';
+
+        }
+        
+     
+
+    }
+
    
    
 }
@@ -2393,7 +2426,7 @@ function ObjectEvent(time,object,property,value){
             let val = setInterval(()=>{
                 
               sunSphere.inclination =  sunSphere.inclination + dI;
-              console.log(sunSphere.inclination)
+              
               valstep++;
 
               var theta = Math.PI * (sunSphere.inclination - 0.5 );
@@ -3019,33 +3052,11 @@ function setRotation(){
 
 //end movie code part
 
-function testFunc(){
-
-    calcGroundAltitude(camera.position)
-   
-
-  
-   
-}
 
 
+// for z limit:
 function calcGroundAltitude(position){
-        
-//     let terrainRaycaster = new THREE.Raycaster();
-//     terrainRaycaster.set(position,new THREE.Vector3(0,0,-1));
 
-//     let terrainIntersect = terrainRaycaster.intersectObjects( [scene.getObjectByName("terrain")] );
-
-  
-
-//    if (terrainIntersect.length > 0){
-    
-//     return (terrainIntersect[0].point.z + 15);
-//    }
-   
-//    else {
-//        return null;
-//     }
 
 
     
@@ -3086,8 +3097,183 @@ function calcGroundAltitude(position){
 
 
 
-  
+//my places:
 
+
+
+function UserPlace(name,position,notes){
+    this.name = name;
+    this.position = position;
+    this.notes = notes;
+
+    //create parent domElement
+    this.domElement = document.createElement("div");
+    this.domElement.classList.add("userPlace");
+    this.domElement.style.display='none';
+
+    
+    
+    
+    //create child elements:
+    let datadiv = document.createElement("div");
+    datadiv.classList.add("userPlace_data");
+    datadiv.addEventListener("click",() =>{
+        
+            datadiv.classList.add("expand");
+            let checkIfClickedOutside = () => {
+                
+       
+         
+                console.log('event runs')
+
+                if( event.path.indexOf(this.domElement) == -1) {
+                   closebtn.click();
+                   window.removeEventListener("mousedown",checkIfClickedOutside,false)
+                }
+            
+           
+        }
+
+            window.addEventListener("mousedown",checkIfClickedOutside,false)
+
+             
+        
+    },false)
+
+    let editbtn = document.createElement("button");
+    editbtn.classList.add("userPlace_editbtn")
+    editbtn.innerHTML ='<i class="fa fa-edit"></i>'
+    editbtn.onclick = (event)=>{
+        event.stopPropagation()
+       
+        editbtn.style.display='none';
+        nameinput.classList.add("onEdit");
+        notesinput.classList.add("onEdit");
+        nameinput.readOnly = false;
+        notesinput.readOnly = false;
+
+        
+    
+    }
+    
+    let closebtn = document.createElement("button");
+    closebtn.classList.add("userPlace_closebtn")
+    closebtn.innerHTML ='<i class="fa fa-close"></i>';
+    closebtn.onclick = (event)=>{
+        event.stopPropagation()
+       
+        datadiv.classList.remove("expand");
+        nameinput.classList.remove("onEdit");
+        notesinput.classList.remove("onEdit");
+        nameinput.readOnly = true;
+        notesinput.readOnly = true;
+        editbtn.style.display='';
+    }
+
+    let nameinput = document.createElement("input");
+    nameinput.setAttribute("type", "text");
+    nameinput.setAttribute("value", this.name);
+    nameinput.readOnly = true;
+    nameinput.oninput = () => {
+      
+        this.name = nameinput.value;
+        namelabel.innerHTML = this.name;
+    }
+    nameinput.classList.add("userPlace_name");
+    
+
+
+    let notesinput = document.createElement("textarea");
+   
+    notesinput.value = this.notes;
+    notesinput.readOnly = true;
+    notesinput.oninput = () => {
+        
+        this.notes = notesinput.value;
+    }
+    notesinput.classList.add("userPlace_notes");
+
+    let namelabel = document.createElement("div");
+    namelabel.innerHTML = this.name;
+    namelabel.classList.add("userPlace_label");
+    
+    let arrow = document.createElement("div");
+    arrow.classList.add("userPlace_arrow")
+    
+    datadiv.appendChild(namelabel);
+    datadiv.appendChild(nameinput);
+    datadiv.appendChild(notesinput);
+    datadiv.appendChild(editbtn);
+    datadiv.appendChild(closebtn);
+    this.domElement.appendChild(datadiv);
+    
+    this.domElement.appendChild(arrow);
+
+
+    document.body.appendChild(this.domElement);
+    
+}
+
+
+function addPlaceByDblclick(){
+    let terrainRaycaster = new THREE.Raycaster();
+        terrainRaycaster.setFromCamera( mouse, camera );
+        let terrainIntersect = terrainRaycaster.intersectObjects( [scene.getObjectByName("terrain"),scene.getObjectByName("plane with image")] );
+    
+    
+    
+       if (terrainIntersect.length > 0){
+        
+            let newPlace = new UserPlace('New Place',terrainIntersect[0].point,'notes note snotes');
+            console.log(newPlace)
+            
+            myPlaces.push(newPlace);
+            exitPinPlaceMode()
+       }
+}
+
+function deletePlace(place){
+    myPlaces.splice(myPlaces.indexOf(place),1);
+}
+
+function enterPinPlaceMode(){
+    renderer.domElement.addEventListener("dblclick",addPlaceByDblclick,false);
+    document.getElementById("addPlaceButton").classList.add("active");
+    
+    
+}
+
+function exitPinPlaceMode(){
+    renderer.domElement.removeEventListener('dblclick',addPlaceByDblclick,false);
+    document.getElementById("addPlaceButton").classList.remove("active");
+}
+
+function createMyPlacesGUI(){
+    console.log('creating myplaces gui')
+    let button = document.createElement('button');
+    button.id ="addPlaceButton"
+    button.innerHTML = "+ Add Place";
+    button.classList.add("sd-control-button");
+    button.style.background = "rgba(0, 0, 0, 0.404)";
+    button.style.width = "auto";
+    
+    button.addEventListener("click", ()=>{
+       enterPinPlaceMode();
+    });
+    document.getElementById("userToolsDiv").appendChild(button);
+
+    
+}
+
+
+
+// test and debug:
+function testFunc(){
+
+console.log(myPlaces[0])
+  
+   
+}
 
 
 
