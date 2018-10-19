@@ -86,6 +86,7 @@ InteractivePage.prototype.init = function (){
 
     //add Orbit Controls
     this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
+    this.controls.zLimitHeight = 1;
     this.controls.target = new THREE.Vector3( 0  , 0 , 0);
     if (this.scene.userData.cameraLookAt) { 
         console.log('Scene userData contains starting camera target. Setting the control target.');    

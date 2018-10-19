@@ -78,6 +78,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 	// Mouse buttons
 	this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
 
+	// zLimit
+	this.zLimitOn = false;
+	this.zLimitHeight = 10;
 	////////////
 	// internals
 
@@ -305,20 +308,20 @@ THREE.OrbitControls = function ( object, domElement ) {
 		nextpos.copy( newTarget ).add( offset );
 
 
-		let zLimit = calcGroundAltitude(nextpos);
+		let zLimit = (this.zLimitOn) ? calcGroundAltitude(nextpos) : 0;
 	
 		
-		if((nextpos.x !== position.x)  && (nextpos.y !== position.y) && (nextpos.y !== position.y)) {
+		if((nextpos.x !== position.x)  && (nextpos.y !== position.y) && (nextpos.z !== position.z)) {
 			
 			
 			
-			if( (nextpos.z - zLimit < 10) || (zLimit == null) ){
+			if( (nextpos.z - zLimit < this.zLimitHeight) || (zLimit == null) ){
 			
 				console.log('heyboy... let z boost u!')	
 				
 				position.copy( newTarget ).add( offset );
 				
-				position.z = zLimit + 10;
+				position.z = zLimit + this.zLimitHeight;
 				
 
 			}

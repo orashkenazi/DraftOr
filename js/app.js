@@ -77,6 +77,7 @@ interactivePageRenderer.domElement.id = 'page_renderer';
 function initControls(){
     camera.position.set(-5349.095,7727.42,4390.05);
     controls = new THREE.OrbitControls( camera, renderer.domElement );
+    controls.zLimitOn = true;
     controls.target = new THREE.Vector3( 200.99  , 190.3 , 870.36)
     updatePositionMark(controls.target);
     controls.minPolarAngle=0.1*Math.PI/2;
