@@ -1797,11 +1797,11 @@ function createInteractiveGUI(){
 
 
 function toScreenPosition(obj, camera){              //calc 2d coordinate of object
-
+    
     var vector = new THREE.Vector3();
 
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+    var widthHalf = 0.5*parseInt(renderer.context.canvas.style.width,10);
+    var heightHalf = 0.5*parseInt(renderer.context.canvas.style.height,10);
    
    // obj.updateMatrixWorld();
    // vector.setFromMatrixPosition(obj.matrixWorld);
