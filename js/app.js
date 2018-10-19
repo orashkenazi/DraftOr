@@ -3173,6 +3173,7 @@ function UserPlace(name,position,notes){
     let nameinput = document.createElement("input");
     nameinput.setAttribute("type", "text");
     nameinput.setAttribute("value", this.name);
+    
     nameinput.readOnly = true;
     nameinput.oninput = () => {
       
@@ -3184,7 +3185,7 @@ function UserPlace(name,position,notes){
 
 
     let notesinput = document.createElement("textarea");
-   
+    
     notesinput.value = this.notes;
     notesinput.readOnly = true;
     notesinput.oninput = () => {
@@ -3224,7 +3225,7 @@ function addPlaceByDblclick(){
     
        if (terrainIntersect.length > 0){
         
-            let newPlace = new UserPlace('New Place',terrainIntersect[0].point,'notes note snotes');
+            let newPlace = new UserPlace('New Untitled Place',terrainIntersect[0].point,"Click the edit icon to edit your place's name and notes");
             console.log(newPlace)
             
             myPlaces.push(newPlace);
@@ -3258,7 +3259,13 @@ function createMyPlacesGUI(){
     button.style.width = "auto";
     
     button.addEventListener("click", ()=>{
-       enterPinPlaceMode();
+       if (button.classList.contains('active')){
+           exitPinPlaceMode();
+       }
+       else {
+        enterPinPlaceMode();
+       }
+       
     });
     document.getElementById("userToolsDiv").appendChild(button);
 
